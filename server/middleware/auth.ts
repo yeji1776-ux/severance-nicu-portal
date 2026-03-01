@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import db from '../config/database';
-import { AuthenticatedRequest } from '../types';
+import db from '../config/database.js';
+import { AuthenticatedRequest } from '../types/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 

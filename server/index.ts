@@ -11,16 +11,16 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-import { initializeDatabase } from './config/database';
-import { errorHandler } from './middleware/errorHandler';
-import authRoutes from './routes/auth';
-import contentRoutes from './routes/content';
-import noticesRoutes from './routes/notices';
-import dischargeRoutes from './routes/discharge';
-import patientsRoutes from './routes/patients';
-import notificationsRoutes from './routes/notifications';
-import adminRoutes from './routes/admin';
-import aiRoutes from './routes/ai';
+import { initializeDatabase } from './config/database.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/auth.js';
+import contentRoutes from './routes/content.js';
+import noticesRoutes from './routes/notices.js';
+import dischargeRoutes from './routes/discharge.js';
+import patientsRoutes from './routes/patients.js';
+import notificationsRoutes from './routes/notifications.js';
+import adminRoutes from './routes/admin.js';
+import aiRoutes from './routes/ai.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;

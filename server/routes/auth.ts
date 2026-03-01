@@ -1,9 +1,9 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import db from '../config/database';
-import { authenticateToken } from '../middleware/auth';
-import { AuthenticatedRequest, DbUser } from '../types';
+import db from '../config/database.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { AuthenticatedRequest, DbUser } from '../types/index.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
