@@ -14,7 +14,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (res.status === 401) {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    if (!localStorage.getItem('guest')) {
+      window.location.href = '/login';
+    }
     throw new Error('인증이 만료되었습니다.');
   }
 

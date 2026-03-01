@@ -12,6 +12,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
+  guestEnter: () => void;
   logout: () => void;
 }
 
@@ -25,6 +26,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       fetchUser(token);
+    } else if (localStorage.getItem('guest') === 'true') {
+      setUser({ id: 0, email: 'guest@nicu.kr', name: '보호자', role: 'parent' });
+      setLoading(false);
     } else {
       setLoading(false);
     }
@@ -72,14 +76,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return userData;
   }
 
+  function guestEnter() {
+    const guestUser: User = { id: 0, email: 'guest@nicu.kr', name: '보호자', role: 'parent' };
+    setUser(guestUser);
+    localStorage.setItem('guest', 'true');
+  }
+
   function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('guest');
     setToken(null);
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, guestEnter, logout }}>
       {children}
     </AuthContext.Provider>
   );

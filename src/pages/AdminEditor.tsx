@@ -169,7 +169,7 @@ export default function AdminEditor() {
             </div>
           </div>
           <div className="flex items-center gap-2 ml-4">
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg" onClick={logout} title="로그아웃"><LogOut className="size-5" /></button>
+            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg" onClick={() => { logout(); window.location.href = '/'; }} title="로그아웃"><LogOut className="size-5" /></button>
             <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
               A
             </div>
