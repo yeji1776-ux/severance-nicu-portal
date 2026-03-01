@@ -107,12 +107,13 @@ export default function LandingPage() {
         </motion.div>
       </main>
 
-      <footer className="p-6 md:p-10 flex justify-center items-center relative z-10">
+      <footer className="p-6 md:p-10 flex flex-col items-center gap-3 relative z-10">
         <div className="flex gap-6 md:gap-8">
           <div className="w-10 md:w-16 h-1 bg-white/20 rounded-full"></div>
           <div className="w-10 md:w-16 h-1 bg-white/40 rounded-full"></div>
           <div className="w-10 md:w-16 h-1 bg-white/20 rounded-full"></div>
         </div>
+        <p className="text-white/40 text-[11px] font-medium tracking-widest uppercase">Made by SMART NICU TEAM</p>
       </footer>
 
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
