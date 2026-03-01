@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -6,21 +6,62 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_PATH = process.env.VERCEL
-  ? '/tmp/nicu.db'
-  : (process.env.DB_PATH || path.join(__dirname, '..', '..', 'data', 'nicu.db'));
+// Initialize sql.js (WASM-based SQLite — works on all platforms including Vercel)
+const SQL = await initSqlJs();
+const sqlDb = new SQL.Database();
 
-// Ensure data directory exists
-const dataDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-
-const db = new Database(DB_PATH);
-
-// Enable WAL mode for better concurrent read performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+/**
+ * Compatibility wrapper providing better-sqlite3-like API over sql.js
+ */
+const db = {
+  prepare(sql: string) {
+    return {
+      all(...params: any[]) {
+        const stmt = sqlDb.prepare(sql);
+        if (params.length > 0) stmt.bind(params);
+        const results: any[] = [];
+        while (stmt.step()) {
+          results.push(stmt.getAsObject());
+        }
+        stmt.free();
+        return results;
+      },
+      get(...params: any[]) {
+        const stmt = sqlDb.prepare(sql);
+        if (params.length > 0) stmt.bind(params);
+        let result: any = undefined;
+        if (stmt.step()) {
+          result = stmt.getAsObject();
+        }
+        stmt.free();
+        return result;
+      },
+      run(...params: any[]) {
+        sqlDb.run(sql, params);
+        const changes = sqlDb.getRowsModified();
+        const lastRow = sqlDb.exec('SELECT last_insert_rowid() as id');
+        const lastInsertRowid = lastRow.length > 0 ? lastRow[0].values[0][0] : 0;
+        return { changes, lastInsertRowid };
+      },
+    };
+  },
+  exec(sql: string) {
+    sqlDb.exec(sql);
+  },
+  transaction<T>(fn: () => T): () => T {
+    return () => {
+      sqlDb.run('BEGIN TRANSACTION');
+      try {
+        const result = fn();
+        sqlDb.run('COMMIT');
+        return result;
+      } catch (e) {
+        sqlDb.run('ROLLBACK');
+        throw e;
+      }
+    };
+  },
+};
 
 export function initializeDatabase() {
   const schemaPath = path.join(__dirname, '..', 'db', 'schema.sql');
