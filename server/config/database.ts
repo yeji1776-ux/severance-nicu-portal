@@ -1,13 +1,18 @@
-import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
+import initSqlJs from 'sql.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize sql.js (WASM-based SQLite — works on all platforms including Vercel)
-const SQL = await initSqlJs();
+// Load WASM binary explicitly so Vercel's file tracer includes it
+const require = createRequire(import.meta.url);
+const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm');
+const wasmBinary = fs.readFileSync(wasmPath);
+
+const SQL = await initSqlJs({ wasmBinary });
 const sqlDb = new SQL.Database();
 
 /**
