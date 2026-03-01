@@ -48,18 +48,18 @@ const db = {
   exec(sql: string) {
     sqlDb.exec(sql);
   },
-  transaction<T>(fn: () => T): () => T {
-    return () => {
+  transaction<T extends (...args: any[]) => any>(fn: T): T {
+    return ((...args: any[]) => {
       sqlDb.run('BEGIN TRANSACTION');
       try {
-        const result = fn();
+        const result = fn(...args);
         sqlDb.run('COMMIT');
         return result;
       } catch (e) {
         sqlDb.run('ROLLBACK');
         throw e;
       }
-    };
+    }) as T;
   },
 };
 
