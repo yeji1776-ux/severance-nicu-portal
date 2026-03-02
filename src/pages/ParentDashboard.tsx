@@ -1,4 +1,4 @@
-import { useState, type ElementType } from 'react';
+import { useState, createContext, useContext, type ElementType } from 'react';
 import {
   Lightbulb,
   Hospital,
@@ -29,12 +29,19 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronLeft,
+  ChevronRight,
   Eye,
   Check,
   Users,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+
+// ─── 폰트 크기 컨텍스트 ─────────────────────
+const FONT_STORAGE_KEY = 'nicu-font-size';
+const FontSizeContext = createContext(0);
+const dCls = (l: number) => (['text-xs', 'text-sm', 'text-base'] as const)[l];
+const tCls = (l: number) => (['text-sm', 'text-base', 'text-lg'] as const)[l];
 
 // ─── 타입 ───────────────────────────────────
 type TabId = 'admission' | 'visit' | 'treatment' | 'discharge' | 'outpatient' | 'breastmilk' | 'video' | 'qna';
@@ -89,7 +96,28 @@ const visitContent = {
   ],
 };
 
-const treatmentContent = { title: '', description: '', tip: '', cards: [] as { title: string; desc: string; icon: ElementType }[] };
+const treatmentContent = {
+  title: '치료 안내',
+  description: 'NICU에서 시행되는 주요 치료 및 검사에 대한 안내입니다.',
+  tip: '치료 과정에서 궁금한 점은 담당 의사·간호사에게 언제든지 질문하세요.',
+  cards: [
+    {
+      title: '호흡 관리',
+      icon: Wind,
+      desc: `미숙아·신생아는 폐가 완전히 성숙하지 않아 호흡 보조가 필요할 수 있습니다.\n\n■ 호흡 보조 단계 (중증도에 따라)\n\n① 인공호흡기 (Mechanical Ventilator)\n기관에 튜브를 삽입하여 기계가 직접 호흡을 도와줍니다.\n가장 강력한 호흡 보조 방법입니다.\n\n② CPAP (지속적 양압 호흡)\n코에 작은 마스크를 대어 지속적으로 공기압을 유지해 폐가 찌그러지지 않도록 합니다.\n스스로 호흡하되 압력으로 보조합니다.\n\n③ 고유량 비강 캐뉼라 (High Flow Nasal Cannula)\n코에 가는 관을 넣어 고유량 산소를 공급합니다.\n비교적 침습적이지 않아 회복 단계에 사용합니다.\n\n④ 저유량 산소 (Low Flow O₂)\n회복 후반부에 적은 양의 산소를 보충합니다.\n\n■ 호흡 관련 주요 용어\n• SpO₂: 산소포화도 (정상 목표 범위는 아기마다 다를 수 있음)\n• FiO₂: 공급 산소 농도\n• 무호흡 발작: 짧게 호흡이 멈추는 현상, 미숙아에서 흔함\n\n■ 보호자 유의사항\n• 알람이 울려도 당황하지 마세요. 간호사가 즉시 확인합니다.\n• 튜브·관이 연결된 상태에서 아기를 갑자기 움직이지 마세요.`,
+    },
+    {
+      title: '주요 검사',
+      icon: Microscope,
+      desc: `NICU에서 아기의 상태를 지속적으로 모니터링하기 위해 다양한 검사를 시행합니다.\n\n※ 아래 검사들은 모든 아기에게 동일하게 시행되는 것이 아니며, 아기의 상태와 진단에 따라 필요한 검사만 선택적으로 이루어집니다. 일반적인 안내로 참고해 주세요.\n\n■ 혈액 검사\n• 혈액가스 분석: 산소·이산화탄소 수치 및 산-염기 균형 확인\n• 전혈구 검사(CBC): 빈혈, 감염 여부 확인\n• 전해질·혈당 검사: 나트륨, 칼륨, 혈당 등 균형 확인\n• 빌리루빈 검사: 황달 수치 확인\n• 배양 검사: 세균 감염(패혈증) 여부 확인\n\n■ 영상 검사\n• 흉부 X-ray: 폐 상태, 기관삽관 위치 확인 (자주 시행)\n• 뇌초음파: 뇌실 내 출혈, 뇌 손상 여부 확인\n• 심초음파: 심장 구조 및 기능, 동맥관 개존 여부 확인\n• 복부 X-ray: 장 상태 확인\n\n■ 안과 검진 (미숙아 망막증)\n재태주수 30주 미만 또는 출생체중 1,500g 미만 시 시행\n1주일에 1회 정기 점검 (자세한 내용은 퇴원 탭 참고)\n\n■ 신생아 청각 선별검사 (AABR)\n• 시행 시기: 교정 재태주수 34주 이상, 또는 퇴원 전\n• 방법: 양쪽 귀에 작은 이어폰을 대어 청성뇌간반응을 자동으로 측정\n  통증 없음, 아기가 잠든 상태에서 시행\n• 결과 판정\n  - 통과(Pass): 35 dB nHL에서 정상 반응 확인 → 정상\n  - 재검(Refer): 반응 불충분 → 정밀 ABR 검사 필요\n    (재검이 나와도 최종 난청을 의미하지 않습니다)\n• 재검 시 정밀검사는 외래에서 별도 예약 후 진행합니다.\n\n■ 신생아 대사이상 선별검사\n발뒤꿈치에서 소량의 혈액을 채취하여 선천성 대사질환 여부를 확인합니다.`,
+    },
+    {
+      title: '캥거루 케어',
+      icon: HandHeart,
+      desc: `캥거루 케어는 부모의 맨 가슴에 아기를 올려 직접 피부 접촉을 하는 방법입니다.\n\n■ 효과\n• 아기의 체온·심박·호흡 안정\n• 체중 증가 및 면역력 향상\n• 수면의 질 개선\n• 모유 수유 촉진\n• 아기-부모 간 유대감 형성\n• 아기의 스트레스 호르몬 감소\n\n■ 시행 방법\n① 간호사에게 캥거루 케어 가능 여부를 먼저 확인합니다.\n② 손을 깨끗이 씻고 앞이 열리는 편한 옷을 입습니다.\n③ 간호사의 도움을 받아 아기를 가슴 위에 안습니다.\n④ 아기의 머리를 한쪽으로 기울여 기도를 확보합니다.\n⑤ 담요로 아기의 등을 덮어 체온을 유지합니다.\n⑥ 최소 1시간 이상 유지하면 더 효과적입니다.\n\n■ 유의사항\n• 아기 상태에 따라 시행 가능 여부가 달라집니다.\n• 아버지도 동일하게 캥거루 케어가 가능합니다.\n• 시행 중 아기 색깔·호흡 변화 시 즉시 간호사에게 알립니다.\n• 향수·로션 등 강한 향은 피합니다.\n• 아기를 안고 있는 동안 잠들지 않도록 주의합니다.\n\n■ 캥거루 케어 종료\n아기가 구강 수유(입으로 먹기)를 완전히 할 수 있게 되어 퇴원 준비 단계에 접어들면, 캥거루 케어는 종료되고 직접 수유 연습으로 전환될 수 있습니다.`,
+    },
+  ],
+};
 
 const dischargeContent = {
   title: '퇴원 교육 안내',
@@ -114,7 +142,7 @@ const dischargeContent = {
     {
       title: '안과 검진 및 미숙아 망막증 진료 안내',
       icon: Eye,
-      desc: `미숙아 망막증은 망막 혈관이 아직 충분히 성장하지 않아 발생할 수 있습니다. 약 3~7일 간격으로 3~4번 점검합니다.\n\n■ 진료 안내\n• 진료 시 아기의 눈을 강제로 벌려서 진료하기 때문에 약간의 충혈이 생길 수 있습니다.\n• 약 3~7일 정도면 자연스럽게 충혈이 회복됩니다.\n• 산동제(눈동자를 키우는 안약)를 사용하므로 검사 도중 빛에 예민할 수 있습니다.\n\n■ 검사 전 주의사항\n• 검사 전 3시간 금식\n• 산동 점안 후 대기시간: 1시간 30분 ~ 2시간\n\n⭐ 검사 후 약 3~7일 뒤 예약 시 충혈이 회복되어 다음 진료가 가능합니다.`,
+      desc: `미숙아 망막증은 망막 혈관이 아직 충분히 성장하지 않아 발생할 수 있습니다. 1주일에 1회 정기적으로 점검합니다.\n\n■ 진료 안내\n• 진료 시 아기의 눈을 강제로 벌려서 진료하기 때문에 약간의 충혈이 생길 수 있습니다.\n• 약 3~7일 정도면 자연스럽게 충혈이 회복됩니다.\n• 산동제(눈동자를 키우는 안약)를 사용하므로 검사 도중 빛에 예민할 수 있습니다.\n\n■ 검사 전 주의사항\n• 검사 전 3시간 금식\n• 산동 점안 후 대기시간: 1시간 30분 ~ 2시간\n\n⭐ 검사 후 약 3~7일 뒤 예약 시 충혈이 회복되어 다음 진료가 가능합니다.`,
     },
     {
       title: '네블라이저 흡입요법',
@@ -286,6 +314,26 @@ const outpatientContent = {
   tip: '',
   cards: [
     {
+      title: '외래 진료 일정',
+      icon: Calendar,
+      desc: `퇴원 후에도 아기의 성장과 건강 상태를 지속적으로 확인하기 위해 정기적인 외래 진료가 필요합니다.\n\n■ 첫 외래 진료\n퇴원 후 1~2주 이내에 신생아과(소아청소년과) 외래를 방문합니다.\n퇴원 시 담당 의료진이 첫 외래 일정을 안내해 드립니다.\n\n■ 교정 나이란?\n미숙아의 발달은 실제 출생일이 아닌 원래 예정일을 기준으로 평가합니다.\n예) 임신 28주에 태어난 아기 → 실제 생후 3개월 = 교정 나이 약 1개월\n\n■ 외래 진료 주요 확인 사항\n• 체중·신장·두위 성장 곡선 추적\n• 수유량 및 영양 상태\n• 교정 나이에 따른 발달 평가\n• 약물 처방 및 용량 조정\n\n■ 다학제 외래 (필요 시)\n아기 상태에 따라 여러 진료과를 함께 방문할 수 있습니다.\n• 안과: 미숙아 망막증 추적\n• 신경과: 뇌 발달 모니터링\n• 심장과: 심장 이상 추적\n• 이비인후과: 청각 재검\n• 재활의학과: 발달 치료\n\n⚠ 외래 예약 날짜를 꼭 지켜주세요. 정기 추적이 아기의 예후에 매우 중요합니다.`,
+    },
+    {
+      title: '발달 추적 검사',
+      icon: Brain,
+      desc: `미숙아는 교정 나이 기준으로 발달을 평가하며, 조기에 발달 문제를 발견하고 개입하는 것이 중요합니다.\n\n※ 아래 내용은 일반적인 안내이며, 검사 시기와 종류는 아기의 상태에 따라 달라질 수 있습니다.\n\n■ 주요 발달 평가 시기 (교정 나이 기준)\n• 교정 4개월: 목 가누기, 시선 추적, 사회적 미소\n• 교정 8개월: 뒤집기, 앉기 시도, 옹알이\n• 교정 12개월: 혼자 앉기, 기기, 첫 단어\n• 교정 18~24개월: 걷기, 두 단어 조합 등\n\n■ 주요 발달 검사 도구\n• Denver II (덴버 발달 선별검사): 대근육·소근육·언어·사회성 평가\n• Bayley 영아 발달검사: 더 정밀한 인지·언어·운동 발달 측정\n\n■ 조기 개입 치료 (필요 시)\n발달 지연이 의심되면 조기에 치료를 시작할수록 효과적입니다.\n• 물리치료: 근육·운동 발달\n• 작업치료: 손 기능·일상생활 능력\n• 언어치료: 언어·의사소통 발달\n\n■ 보호자 관찰이 중요합니다\n평소 아기의 반응, 움직임, 옹알이 등을 관찰하여 외래 시 의료진에게 알려주세요.`,
+    },
+    {
+      title: '예방접종',
+      icon: Syringe,
+      desc: `미숙아도 실제 출생일(생년월일)을 기준으로 예방접종을 시행합니다. 교정 나이가 아닌 실제 나이 기준임을 꼭 기억하세요.\n\n※ 접종 일정은 아기 상태에 따라 의료진이 조정할 수 있습니다.\n\n■ 주요 접종 일정 (실제 생후 기준)\n• 출생 시: B형 간염 1차\n  (출생 체중 2kg 미만 시 → 생후 1개월 또는 체중 2kg 도달 후 시행)\n• 생후 1개월: BCG (결핵), B형 간염 2차\n• 생후 2개월: DTaP, 폴리오(IPV), Hib, 폐렴구균(PCV), 로타바이러스 1차\n• 생후 4개월: DTaP, 폴리오, Hib, PCV, 로타바이러스 2차\n• 생후 6개월: DTaP, 폴리오, Hib, PCV, B형 간염 3차, 로타바이러스 3차(5가만)\n\n■ RSV 예방 주사 (시나지스®, 파리비주맙)\n고위험 미숙아에게 RSV(호흡기세포융합바이러스) 감염 예방을 위해 투여합니다.\n• 대상: 재태주수 29주 미만, 또는 만성 폐질환·선천성 심장질환 등 고위험군\n• 투여 시기: RSV 유행 계절(주로 10월~3월)에 월 1회 근육주사\n• 건강보험 급여 적용 여부는 담당 의사에게 확인하세요.\n\n■ 접종 장소\n• 입원 중: NICU 내에서 시행\n• 퇴원 후: 가까운 소아과 의원 또는 보건소`,
+    },
+    {
+      title: '산정특례 제도 안내',
+      desc: '■ 산정특례란?\n암·희귀질환·중증난치질환 등 고액의 치료비가 발생하는 중증 질환자의 본인부담률을 대폭 낮춰주는 건강보험 제도입니다.\n\n■ 주요 적용 대상 (NICU 관련)\n• 선천성 기형 및 염색체 이상\n• 희귀질환 (유전대사질환, 선천성 심장질환 등)\n• 중증난치질환\n• 뇌혈관질환, 심장질환 등\n\n■ 혜택\n• 일반 본인부담률 20~60% → 5~10%로 경감\n• 적용 기간: 질환별 상이 (통상 5년, 이후 재등록 가능)\n\n■ 등록 방법\n① 담당 주치의에게 산정특례 등록 가능 여부 확인\n② 주치의가 「본인부담금 산정특례 등록 신청서」 작성\n③ 국민건강보험공단에 등록 (병원 원무팀 통해 가능)\n④ 등록 완료 후 외래·입원 진료 시 자동 적용\n\n■ 신청 시 주의사항\n• 등록 신청일로부터 적용되므로 빠른 신청이 중요합니다.\n• 기존에 등록된 경우에도 유효기간 만료 전 재등록 필요.\n• 문의: 국민건강보험 고객센터 1577-1000',
+      icon: FileText,
+    },
+    {
       title: '조산아·저체중 출생아 외래진료비 경감신청',
       desc: '■ 적용 대상\n재태기간 37주 미만 또는 2,500g 이하의 저체중 출생아\n(출생신고 전에는 신청 불가, 건강보험 자격이 있어야 등록 가능)\n\n■ 경감 내용\n외래진료·약국·처방 의약품 본인부담률 5%\n(종전 10%에서 경감)\n\n■ 적용기간\n출생일(주민등록상)로부터 5년\n※ 신청일로부터 경감 적용되므로 빠른 신청이 중요합니다\n\n■ 신청서류\n① 외래진료비 본인부담 경감 신청서\n② 요양기관에서 발급한 출생증명서\n③ 주민등록 등본 (건강보험 자격 확인 시 생략 가능)\n\n■ 제출방법\n방문, 우편, 팩스\n▸ 제출처: 가까운 국민건강보험공단 지사\n▸ 고객센터: 1577-1000\n▸ 온라인: www.nhis.or.kr → 민원신청 → 서식자료실 → 보험급여 → 경감제도 신청서 출력\n\n■ 퇴원 후 등록절차\n① 출생 신고 후 건강보험에 등재\n② 외래 원무과(1층)에서 아기 이름으로 변경\n   (입원 중에는 입원 원무과 4층, 가족관계증명서 등 필요)\n③ 신생아과 첫 외래 방문 시 신청서 작성 후 서류 지참하여 원무과에서 등록',
       icon: FileText,
@@ -342,6 +390,13 @@ export default function ParentDashboard() {
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>('admission');
   const [currentJourneyStep] = useState(1);
+  const [fontLevel, setFontLevel] = useState<number>(() => {
+    try { return Number(localStorage.getItem(FONT_STORAGE_KEY) ?? '0'); } catch { return 0; }
+  });
+  const changeFontLevel = (l: number) => {
+    setFontLevel(l);
+    try { localStorage.setItem(FONT_STORAGE_KEY, String(l)); } catch {}
+  };
 
   // 하단 네비 클릭 핸들러
   const handleBottomNav = (id: string) => {
@@ -374,12 +429,27 @@ export default function ParentDashboard() {
             <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider">보호자 포털</p>
           </div>
         </div>
-        <button
-          onClick={() => { logout(); window.location.href = '/'; }}
-          className="flex items-center justify-center rounded-full size-9 bg-primary/5 text-primary hover:bg-primary/10 transition-colors shrink-0"
-        >
-          <LogOut className="size-4" />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* 글씨 크기 조절 */}
+          <div className="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+            {(['기본', '중간', '크게'] as const).map((label, i) => (
+              <button
+                key={i}
+                onClick={() => changeFontLevel(i)}
+                className={`px-2 py-1 rounded-md font-bold transition-colors leading-none ${fontLevel === i ? 'bg-white text-primary shadow-sm' : 'text-slate-400'}`}
+                style={{ fontSize: 10 + i * 2 }}
+              >
+                가
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => { logout(); window.location.href = '/'; }}
+            className="flex items-center justify-center rounded-full size-9 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+          >
+            <LogOut className="size-4" />
+          </button>
+        </div>
       </header>
 
       {/* ═══ 서브헤더 ═══ */}
@@ -389,47 +459,43 @@ export default function ParentDashboard() {
       </div>
 
       {/* ═══ 여정 프로그레스 바 ═══ */}
-      <div className="bg-white px-4 py-5 border-b border-slate-100">
-        <p className="text-sm font-bold text-slate-700 mb-3">우리 아이의 여정</p>
-        <div className="flex items-center justify-between relative">
-          <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200" />
-          <div
-            className="absolute top-4 left-6 h-0.5 bg-primary transition-all duration-500"
-            style={{ width: `${((currentJourneyStep - 1) / (journeySteps.length - 1)) * (100 - (12 / 3.5))}%` }}
-          />
-          {journeySteps.map((step) => (
-            <div key={step.id} className="flex flex-col items-center gap-1.5 relative z-10">
-              <div
-                className={`size-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                  step.id <= currentJourneyStep
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-slate-200 text-slate-400'
-                }`}
-              >
-                {step.id}
+      <div className="bg-white px-4 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <p className="text-xs font-bold text-slate-500 shrink-0">우리 아이의 여정</p>
+          <div className="flex items-center flex-1 relative">
+            <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200" />
+            <div
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-0.5 bg-primary transition-all duration-500"
+              style={{ width: `${((currentJourneyStep - 1) / (journeySteps.length - 1)) * (100 - 12)}%` }}
+            />
+            {journeySteps.map((step) => (
+              <div key={step.id} className="flex flex-col items-center gap-1 relative z-10 flex-1">
+                <div
+                  className={`size-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                    step.id <= currentJourneyStep ? 'bg-primary text-white' : 'bg-slate-200 text-slate-400'
+                  }`}
+                >
+                  {step.id}
+                </div>
+                <span className={`text-[9px] font-medium ${step.id <= currentJourneyStep ? 'text-primary' : 'text-slate-400'}`}>
+                  {step.label}
+                </span>
               </div>
-              <span
-                className={`text-[11px] font-medium ${
-                  step.id <= currentJourneyStep ? 'text-primary' : 'text-slate-400'
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ═══ 카테고리 탭 ═══ */}
-      <div className="bg-white border-b border-slate-100 overflow-x-auto no-scrollbar">
-        <div className="flex px-2 py-2 gap-1 min-w-max">
+      <div className="bg-white border-b border-slate-100 px-2 py-2">
+        <div className="flex flex-wrap gap-1">
           {categoryTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
@@ -444,16 +510,18 @@ export default function ParentDashboard() {
       </div>
 
       {/* ═══ 탭 콘텐츠 영역 ═══ */}
-      <div className="px-4 py-4 space-y-4">
-        {activeTab === 'admission' && <ContentTab data={admissionContent} />}
-        {activeTab === 'visit' && <ContentTab data={visitContent} />}
-        {activeTab === 'treatment' && <ContentTab data={treatmentContent} />}
-        {activeTab === 'discharge' && <DischargeTab />}
-        {activeTab === 'outpatient' && <ContentTab data={outpatientContent} />}
-        {activeTab === 'breastmilk' && <BreastmilkTab />}
-        {activeTab === 'video' && <QrTab />}
-        {activeTab === 'qna' && <QnaTab />}
-      </div>
+      <FontSizeContext.Provider value={fontLevel}>
+        <div className="px-4 py-4 space-y-4">
+          {activeTab === 'admission' && <ContentTab data={admissionContent} />}
+          {activeTab === 'visit' && <ContentTab data={visitContent} />}
+          {activeTab === 'treatment' && <ContentTab data={treatmentContent} />}
+          {activeTab === 'discharge' && <DischargeTab />}
+          {activeTab === 'outpatient' && <ContentTab data={outpatientContent} />}
+          {activeTab === 'breastmilk' && <BreastmilkTab />}
+          {activeTab === 'video' && <QrTab />}
+          {activeTab === 'qna' && <QnaTab />}
+        </div>
+      </FontSizeContext.Provider>
 
       {/* ═══ 연락처 ═══ */}
       <div id="contact-section" className="px-4 pb-6">
@@ -503,7 +571,8 @@ export default function ParentDashboard() {
 
 // ─── 퇴원 준비물 체크리스트 컴포넌트 ─────────
 function DischargeChecklist() {
-  const [isOpen, setIsOpen] = useState(true);
+  const fl = useContext(FontSizeContext);
+  const [isOpen, setIsOpen] = useState(false);
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -592,7 +661,7 @@ function DischargeChecklist() {
                               <div className={`size-5 rounded flex items-center justify-center shrink-0 border transition-colors ${isChecked ? 'bg-amber-500 border-amber-500' : 'bg-white border-amber-200'}`}>
                                 {isChecked && <Check className="size-3 text-white stroke-[3]" />}
                               </div>
-                              <span className={`text-xs leading-snug ${isChecked ? 'line-through text-slate-400' : 'text-slate-600'}`}>
+                              <span className={`${dCls(fl)} leading-snug ${isChecked ? 'line-through text-slate-400' : 'text-slate-600'}`}>
                                 {item.label}
                               </span>
                             </button>
@@ -674,8 +743,15 @@ function DischargeDrillDown({
   category: DischargeCategory;
   onBack: () => void;
 }) {
+  const fl = useContext(FontSizeContext);
   const [openCards, setOpenCards] = useState<Record<number, boolean>>({});
   const toggle = (i: number) => setOpenCards(prev => ({ ...prev, [i]: !prev[i] }));
+  const openAndScroll = (i: number) => {
+    setOpenCards(prev => ({ ...prev, [i]: true }));
+    setTimeout(() => {
+      document.getElementById(`dd-card-${category.id}-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
   const cfg = colorConfig[category.color];
 
   return (
@@ -700,12 +776,34 @@ function DischargeDrillDown({
         </div>
       </div>
 
+      {category.cards.length > 1 && (
+        <div className={`${cfg.bg} rounded-xl p-3.5 border ${cfg.border}`}>
+          <p className={`text-xs font-bold ${cfg.text} mb-2 flex items-center gap-1.5`}>
+            <ClipboardList className="size-3.5" /> 이 카테고리의 내용
+          </p>
+          <div className="space-y-0.5">
+            {category.cards.map((card, i) => (
+              <button
+                key={i}
+                onClick={() => openAndScroll(i)}
+                className="w-full flex items-center gap-2 text-left py-1.5 px-2 rounded-lg hover:bg-black/5 transition-colors group"
+              >
+                <card.icon className={`size-3.5 shrink-0 ${cfg.iconText}`} />
+                <span className={`${dCls(fl)} text-slate-600 group-hover:text-slate-800 flex-1 leading-snug`}>{card.title}</span>
+                <ChevronRight className="size-3 text-slate-300 group-hover:text-slate-500 shrink-0" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-3">
         {category.cards.map((card, i) => {
           const isOpen = openCards[i] ?? false;
           return (
             <div
               key={i}
+              id={`dd-card-${category.id}-${i}`}
               className="bg-white rounded-xl shadow-sm border border-primary/5 overflow-hidden hover:border-primary/20 transition-all"
             >
               <button
@@ -715,7 +813,7 @@ function DischargeDrillDown({
                 <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <card.icon className="size-5" />
                 </div>
-                <p className="text-sm font-bold text-slate-800 flex-1">{card.title}</p>
+                <p className={`${tCls(fl)} font-bold text-slate-800 flex-1`}>{card.title}</p>
                 <ChevronDown
                   className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                 />
@@ -725,7 +823,7 @@ function DischargeDrillDown({
               >
                 <div className="overflow-hidden">
                   <div className="px-4 pb-4 pt-0 ml-[52px]">
-                    <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{card.desc}</p>
+                    <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
                   </div>
                 </div>
               </div>
@@ -739,13 +837,16 @@ function DischargeDrillDown({
 
 // ─── 공통 탭 콘텐츠 (빈 상태 포함) ─────────
 function ContentTab({ data }: { data: { title: string; description: string; tip: string; cards: { title: string; desc: string; icon: ElementType }[] } }) {
+  const fl = useContext(FontSizeContext);
   const isEmpty = !data.title && data.cards.length === 0;
-  // 모든 카드 기본 펼침
-  const [openCards, setOpenCards] = useState<Record<number, boolean>>(() =>
-    Object.fromEntries(data.cards.map((_, i) => [i, true]))
-  );
-
+  const [openCards, setOpenCards] = useState<Record<number, boolean>>({});
   const toggle = (i: number) => setOpenCards((prev) => ({ ...prev, [i]: !prev[i] }));
+  const openAndScroll = (i: number) => {
+    setOpenCards(prev => ({ ...prev, [i]: true }));
+    setTimeout(() => {
+      document.getElementById(`ct-card-${data.title}-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
 
   if (isEmpty) {
     return (
@@ -761,15 +862,36 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
     <>
       <div className="bg-white rounded-xl p-4 shadow-sm border border-primary/5">
         <h3 className="text-base font-bold text-primary mb-1">{data.title}</h3>
-        <p className="text-xs text-slate-500 leading-relaxed">{data.description}</p>
+        <p className={`${dCls(fl)} text-slate-500 leading-relaxed`}>{data.description}</p>
       </div>
+
+      {data.cards.length > 0 && (
+        <div className="bg-primary/5 rounded-xl p-3.5 border border-primary/10">
+          <p className="text-xs font-bold text-primary mb-2 flex items-center gap-1.5">
+            <ClipboardList className="size-3.5" /> 이 탭의 내용
+          </p>
+          <div className="space-y-0.5">
+            {data.cards.map((card, i) => (
+              <button
+                key={i}
+                onClick={() => openAndScroll(i)}
+                className="w-full flex items-center gap-2 text-left py-1.5 px-2 rounded-lg hover:bg-primary/10 transition-colors group"
+              >
+                <card.icon className="size-3.5 shrink-0 text-primary/60" />
+                <span className={`${dCls(fl)} text-slate-600 group-hover:text-primary flex-1 leading-snug`}>{card.title}</span>
+                <ChevronRight className="size-3 text-slate-300 group-hover:text-primary shrink-0" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {data.tip && (
         <div className="bg-accent-yellow/10 rounded-xl p-3.5 flex items-start gap-2.5 border border-accent-yellow/20">
           <Lightbulb className="size-4 text-primary mt-0.5 shrink-0" />
           <div>
-            <p className="text-xs font-bold text-primary mb-0.5">보호자 TIP</p>
-            <p className="text-xs text-slate-600 leading-relaxed">{data.tip}</p>
+            <p className={`${dCls(fl)} font-bold text-primary mb-0.5`}>보호자 TIP</p>
+            <p className={`${dCls(fl)} text-slate-600 leading-relaxed`}>{data.tip}</p>
           </div>
         </div>
       )}
@@ -777,10 +899,11 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
       {data.cards.length > 0 && (
         <div className="grid grid-cols-1 gap-3">
           {data.cards.map((card, i) => {
-            const isOpen = openCards[i] ?? true;
+            const isOpen = openCards[i] ?? false;
             return (
               <div
                 key={i}
+                id={`ct-card-${data.title}-${i}`}
                 className="bg-white rounded-xl shadow-sm border border-primary/5 overflow-hidden hover:border-primary/20 transition-all"
               >
                 <button
@@ -790,7 +913,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
                   <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <card.icon className="size-5" />
                   </div>
-                  <p className="text-sm font-bold text-slate-800 flex-1">{card.title}</p>
+                  <p className={`${tCls(fl)} font-bold text-slate-800 flex-1`}>{card.title}</p>
                   <ChevronDown
                     className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                   />
@@ -800,7 +923,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
                 >
                   <div className="overflow-hidden">
                     <div className="px-4 pb-4 pt-0 ml-[52px]">
-                      <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{card.desc}</p>
+                      <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
                     </div>
                   </div>
                 </div>
@@ -815,6 +938,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
 
 // ─── 모유 탭 ────────────────────────────────
 function BreastmilkTab() {
+  const fl = useContext(FontSizeContext);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     guide: true, safe: false, conditional: false, prohibited: false,
   });
@@ -826,7 +950,7 @@ function BreastmilkTab() {
       {/* 헤더 */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-primary/5">
         <h3 className="text-base font-bold text-primary mb-1">모유 수유 안내</h3>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className={`${dCls(fl)} text-slate-500 leading-relaxed`}>
           모유는 아기에게 최고의 영양입니다. 올바른 유축·보관 방법과 약물 안전 정보를 확인해 주세요.
         </p>
       </div>
@@ -835,14 +959,14 @@ function BreastmilkTab() {
       <div className="bg-primary/5 rounded-xl p-4 flex items-start gap-3 border border-primary/10">
         <Phone className="size-5 text-primary mt-0.5 shrink-0" />
         <div>
-          <p className="text-xs text-slate-500 mb-1">수유 중 약물 복용이 걱정되시나요?</p>
-          <p className="text-sm font-bold text-primary">마더세이프: 1588-7309</p>
-          <p className="text-xs text-slate-400 mt-0.5">평일 09:00~17:00 (점심 12:30~13:30 제외)</p>
+          <p className={`${dCls(fl)} text-slate-500 mb-1`}>수유 중 약물 복용이 걱정되시나요?</p>
+          <p className={`${tCls(fl)} font-bold text-primary`}>마더세이프: 1588-7309</p>
+          <p className={`${dCls(fl)} text-slate-400 mt-0.5`}>평일 09:00~17:00 (점심 12:30~13:30 제외)</p>
           <a
             href="https://mothertobaby.co.kr"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-1.5 text-xs font-semibold text-primary underline underline-offset-2"
+            className={`inline-block mt-1.5 ${dCls(fl)} font-semibold text-primary underline underline-offset-2`}
           >
             마더투베이비 웹사이트 →
           </a>
@@ -855,13 +979,13 @@ function BreastmilkTab() {
           <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
             <Droplets className="size-5" />
           </div>
-          <p className="text-sm font-bold text-slate-800 flex-1">모유 관리 안내</p>
+          <p className={`${tCls(fl)} font-bold text-slate-800 flex-1`}>모유 관리 안내</p>
           <ChevronDown className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${openSections.guide ? 'rotate-180' : ''}`} />
         </button>
         <div className={`grid transition-all duration-200 ease-in-out ${openSections.guide ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
             <div className="px-4 pb-4 ml-[52px]">
-              <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{breastmilkGuide.desc}</p>
+              <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{breastmilkGuide.desc}</p>
             </div>
           </div>
         </div>
@@ -874,8 +998,8 @@ function BreastmilkTab() {
             <ShieldCheck className="size-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-800">수유 가능 약물</p>
-            <p className="text-[11px] text-green-600 font-medium">안전하게 복용 가능</p>
+            <p className={`${tCls(fl)} font-bold text-slate-800`}>수유 가능 약물</p>
+            <p className={`${dCls(fl)} text-green-600 font-medium`}>안전하게 복용 가능</p>
           </div>
           <ChevronDown className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${openSections.safe ? 'rotate-180' : ''}`} />
         </button>
@@ -884,12 +1008,12 @@ function BreastmilkTab() {
             <div className="px-4 pb-4">
               <div className="flex flex-wrap gap-1.5">
                 {safeMedications.map((med) => (
-                  <span key={med} className="inline-block bg-green-50 text-green-700 text-[11px] font-medium px-2 py-1 rounded-md border border-green-100">
+                  <span key={med} className={`inline-block bg-green-50 text-green-700 ${dCls(fl)} font-medium px-2 py-1 rounded-md border border-green-100`}>
                     {med}
                   </span>
                 ))}
               </div>
-              <p className="text-[11px] text-slate-400 mt-3">※ 일반적인 용량 기준입니다. 고용량 투여 시 의료진과 상담하세요.</p>
+              <p className={`${dCls(fl)} text-slate-400 mt-3`}>※ 일반적인 용량 기준입니다. 고용량 투여 시 의료진과 상담하세요.</p>
             </div>
           </div>
         </div>
@@ -902,8 +1026,8 @@ function BreastmilkTab() {
             <AlertTriangle className="size-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-800">조건부 가능 약물</p>
-            <p className="text-[11px] text-amber-600 font-medium">중단 후 일정 시간 경과 뒤 수유</p>
+            <p className={`${tCls(fl)} font-bold text-slate-800`}>조건부 가능 약물</p>
+            <p className={`${dCls(fl)} text-amber-600 font-medium`}>중단 후 일정 시간 경과 뒤 수유</p>
           </div>
           <ChevronDown className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${openSections.conditional ? 'rotate-180' : ''}`} />
         </button>
@@ -914,8 +1038,8 @@ function BreastmilkTab() {
                 <div key={med.name} className="flex items-start gap-2 bg-amber-50/50 rounded-lg p-2.5 border border-amber-100/60">
                   <Clock className="size-3.5 text-amber-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold text-slate-700">{med.name}</p>
-                    <p className="text-[11px] text-amber-700 mt-0.5">{med.note}</p>
+                    <p className={`${dCls(fl)} font-semibold text-slate-700`}>{med.name}</p>
+                    <p className={`${dCls(fl)} text-amber-700 mt-0.5`}>{med.note}</p>
                   </div>
                 </div>
               ))}
@@ -931,8 +1055,8 @@ function BreastmilkTab() {
             <AlertTriangle className="size-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-800">수유 금기 약물</p>
-            <p className="text-[11px] text-red-600 font-medium">복용 시 수유 중단 필요</p>
+            <p className={`${tCls(fl)} font-bold text-slate-800`}>수유 금기 약물</p>
+            <p className={`${dCls(fl)} text-red-600 font-medium`}>복용 시 수유 중단 필요</p>
           </div>
           <ChevronDown className={`size-4 text-slate-400 shrink-0 transition-transform duration-200 ${openSections.prohibited ? 'rotate-180' : ''}`} />
         </button>
@@ -943,13 +1067,13 @@ function BreastmilkTab() {
                 <div key={med.name} className="flex items-start gap-2 bg-red-50/50 rounded-lg p-2.5 border border-red-100/60">
                   <AlertTriangle className="size-3.5 text-red-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-xs font-semibold text-red-700">{med.name}</p>
-                    <p className="text-[11px] text-red-600 mt-0.5">{med.note}</p>
+                    <p className={`${dCls(fl)} font-semibold text-red-700`}>{med.name}</p>
+                    <p className={`${dCls(fl)} text-red-600 mt-0.5`}>{med.note}</p>
                   </div>
                 </div>
               ))}
               <div className="bg-red-50 rounded-lg p-2.5 border border-red-200/60 mt-2">
-                <p className="text-[11px] text-red-700 font-medium leading-relaxed">
+                <p className={`${dCls(fl)} text-red-700 font-medium leading-relaxed`}>
                   ⚠ 위 약물을 복용 중이라면 즉시 의료진에게 알려주시고, 수유를 중단해 주세요.
                 </p>
               </div>
