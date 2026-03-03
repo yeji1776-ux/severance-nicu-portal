@@ -843,7 +843,7 @@ function DischargeDrillDown({
                 className={`grid transition-all duration-200 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
               >
                 <div className="overflow-hidden">
-                  <div className="px-4 pb-4 pt-0 ml-[52px]">
+                  <div className="px-4 pb-4 pt-0">
                     <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
                   </div>
                 </div>
@@ -943,7 +943,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
                   className={`grid transition-all duration-200 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-4 pb-4 pt-0 ml-[52px]">
+                    <div className="px-4 pb-4 pt-0">
                       <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
                     </div>
                   </div>
@@ -1005,7 +1005,7 @@ function BreastmilkTab() {
         </button>
         <div className={`grid transition-all duration-200 ease-in-out ${openSections.guide ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
-            <div className="px-4 pb-4 ml-[52px]">
+            <div className="px-4 pb-4">
               <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{breastmilkGuide.desc}</p>
             </div>
           </div>
