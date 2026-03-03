@@ -898,7 +898,7 @@ function DischargeDrillDown({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {category.cards.map((card, i) => {
           const isOpen = openCards[i] ?? false;
           return (
@@ -1011,7 +1011,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
       )}
 
       {data.cards.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           {data.cards.map((card, i) => {
             const isOpen = openCards[i] ?? false;
             return (
@@ -1312,7 +1312,6 @@ const confirmItems = [
 interface AdmissionConfirmRecord {
   userId: number;
   userName: string;
-  userEmail: string;
   confirmedAt: string;
 }
 
@@ -1329,13 +1328,13 @@ function AdmissionConfirmation({ user }: { user: { id: number; name: string; ema
 
   const [saved, setSaved] = useState<AdmissionConfirmRecord | null>(getSaved);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
-  const allChecked = confirmItems.every((_, i) => checked[i]);
+  const [guardianName, setGuardianName] = useState('');
+  const allChecked = confirmItems.every((_, i) => checked[i]) && guardianName.trim().length > 0;
 
   const handleConfirm = () => {
     const record: AdmissionConfirmRecord = {
       userId,
-      userName: user?.name ?? '보호자',
-      userEmail: user?.email ?? '',
+      userName: guardianName.trim(),
       confirmedAt: new Date().toISOString(),
     };
     try {
@@ -1353,7 +1352,7 @@ function AdmissionConfirmation({ user }: { user: { id: number; name: string; ema
           <Check className="size-5 text-green-600" />
         </div>
         <div>
-          <p className={`${tCls(fl)} font-bold text-green-700`}>입원 안내 숙지 확인 완료</p>
+          <p className={`${tCls(fl)} font-bold text-green-700`}>{saved.userName} 보호자 — 숙지 확인 완료</p>
           <p className={`${dCls(fl)} text-green-600 mt-0.5`}>
             {new Date(saved.confirmedAt).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
           </p>
@@ -1373,18 +1372,33 @@ function AdmissionConfirmation({ user }: { user: { id: number; name: string; ema
         </div>
       </div>
       <div className="p-4 space-y-3">
-        {confirmItems.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))}
-            className="w-full flex items-start gap-3 text-left"
-          >
-            <div className={`size-5 md:size-6 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${checked[i] ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/50'}`}>
-              {checked[i] && <Check className="size-3 md:size-4 text-white" />}
-            </div>
-            <span className={`${dCls(fl)} text-slate-700 leading-snug`}>{item}</span>
-          </button>
-        ))}
+        {/* 보호자 이름 입력 */}
+        <div>
+          <label className={`${dCls(fl)} font-semibold text-slate-700 block mb-1.5`}>보호자 이름</label>
+          <input
+            type="text"
+            value={guardianName}
+            onChange={e => setGuardianName(e.target.value)}
+            placeholder="성함을 입력해 주세요"
+            className={`${dCls(fl)} w-full border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-300`}
+          />
+        </div>
+
+        <div className="border-t border-slate-100 pt-3 space-y-3">
+          {confirmItems.map((item, i) => (
+            <button
+              key={i}
+              onClick={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))}
+              className="w-full flex items-start gap-3 text-left"
+            >
+              <div className={`size-5 md:size-6 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${checked[i] ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/50'}`}>
+                {checked[i] && <Check className="size-3 md:size-4 text-white" />}
+              </div>
+              <span className={`${dCls(fl)} text-slate-700 leading-snug`}>{item}</span>
+            </button>
+          ))}
+        </div>
+
         <button
           onClick={handleConfirm}
           disabled={!allChecked}

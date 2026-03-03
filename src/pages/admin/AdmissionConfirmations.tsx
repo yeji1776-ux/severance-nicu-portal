@@ -7,7 +7,6 @@ const ADMISSION_CONFIRM_KEY = 'nicu-admission-confirmation-v1';
 interface AdmissionConfirmRecord {
   userId: number;
   userName: string;
-  userEmail: string;
   confirmedAt: string;
 }
 
@@ -83,7 +82,6 @@ export default function AdmissionConfirmations() {
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
                     <th className="text-left px-4 py-3 font-semibold text-slate-600">보호자 이름</th>
-                    <th className="text-left px-4 py-3 font-semibold text-slate-600">이메일 (계정)</th>
                     <th className="text-left px-4 py-3 font-semibold text-slate-600">확인 일시</th>
                     <th className="text-center px-4 py-3 font-semibold text-slate-600">상태</th>
                     <th className="text-center px-4 py-3 font-semibold text-slate-600">삭제</th>
@@ -93,7 +91,6 @@ export default function AdmissionConfirmations() {
                   {[...records].sort((a, b) => new Date(b.confirmedAt).getTime() - new Date(a.confirmedAt).getTime()).map(r => (
                     <tr key={r.userId} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-4 py-3 font-medium text-slate-800">{r.userName}</td>
-                      <td className="px-4 py-3 text-slate-500">{r.userEmail}</td>
                       <td className="px-4 py-3 text-slate-600">{fmt(r.confirmedAt)}</td>
                       <td className="px-4 py-3 text-center">
                         <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
