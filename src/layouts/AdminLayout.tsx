@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Edit3, Bell, Search, LogOut } from 'lucide-react';
+import { Edit3, Bell, Search, LogOut, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { path: '/admin', icon: Edit3, label: '콘텐츠 편집기' },
   { path: '/admin/notifications', icon: Bell, label: '알림 센터' },
+  { path: '/admin/confirmations', icon: ClipboardList, label: '숙지 확인' },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

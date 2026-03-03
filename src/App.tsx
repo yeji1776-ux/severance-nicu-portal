@@ -9,6 +9,7 @@ import ParentDashboard from './pages/ParentDashboard';
 import AdminEditor from './pages/AdminEditor';
 import DischargeManual from './pages/DischargeManual';
 import NotificationCenter from './pages/admin/NotificationCenter';
+import AdmissionConfirmations from './pages/admin/AdmissionConfirmations';
 
 export default function App() {
   return (
@@ -36,6 +37,11 @@ export default function App() {
           <Route path="/admin/notifications" element={
             <ProtectedRoute role="admin">
               <NotificationCenter />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/confirmations" element={
+            <ProtectedRoute role="admin">
+              <AdmissionConfirmations />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFoundPage />} />

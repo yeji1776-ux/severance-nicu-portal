@@ -82,7 +82,9 @@ const admissionContent = {
   cards: [
     { title: 'NICU 소개', icon: Hospital, desc: `세브란스 신생아집중치료실(NICU)은 환아들에게 최상의 진료를 제공하기 위해 국내 최고의 전문 의료진이 첨단 장비를 이용하여 침상 옆에서 신속한 검사와 치료를 시행합니다.\n\n■ 병동 구성 (총 52병상 / 어린이병원 5층)\n• A구역 (26병상): 초극소 미숙아, 중증 환아 전담\n  최신 장비 및 음압·양압 시설, 내부 수술실, 격리실 보유\n• B구역 (26병상): 선천 기형·외과적 질환 환아 전담\n\n■ 의료진\n신생아과·산부인과·소아외과·소아심장과·소아흉부외과 등 15개 이상 진료과 다학제 협진\n신생아 전담간호사, 아동전문간호사, 국제모유수유전문가, 캥거루케어 전담간호사 활동\n\n■ 특수진료 프로그램\n• NICU 내 수술실: 소아외과·심장혈관외과 수술 가능\n• 체외순환 막형 산화요법 (ECMO)\n• 저산소성 허혈성 뇌병증 저체온요법\n• 신대체 요법 (복막 투석, CRRT)\n• 출혈·감염 후 수두증 내시경세척술\n• 난치성 경련 실시간 뇌파 치료\n• 영아 만성 폐질환 (기관지폐이형성증) 치료\n• 혈장 교환술 및 소아 간이식 다학제 진료\n• 산전 상담 및 다학제 진료\n• 조기 재활 프로그램 (구강재활, 물리치료, 1:1 보호자 교육)\n\n■ 주치의 회진 시간\n• 오전: 8:00 ~ 11:00\n• 오후: 16:00 ~ 19:00` },
     { title: '입원 수속 장소 안내', desc: '▸ 평일 08:30~17:30 (점심시간 12:30~13:30 포함)\n어린이병원 4층 입·퇴원 창구\nTel. 02-2228-5946\n\n▸ 토요일 13:30~17:30 / 공휴일 08:30~17:30\n본관 3층 입원 원무팀 1, 2번 창구\nTel. 02-2228-7000\n\n※ 본관 3층 가는 길: 어린이병원 1층에서 외부로 나가 본관 3층으로, 또는 어린이병원 4층 연결통로 → 본관 5층 → 3층 로비로 이동', icon: Hospital, links: [{ label: '세브란스 어린이병원 홈페이지', url: 'https://sev-children.severance.healthcare' }] },
-    { title: '입원 절차', desc: '■ 입원 시 준비물\n▸ 갑티슈 1개\n▸ 물티슈 1개\n\n■ 입원 절차\n① 회의실에서 동영상 시청 및 서류 작성\n   • 입원 안내 동영상 시청\n   • 동의서 설명 동영상 시청\n   • 간호정보조사지 작성 (Inborn / Outborn)\n     - 아기의 형제·자매가 있다면 함께 기재해 주세요.\n     - 외부(Outborn) 환자의 경우, 지참하신 의무기록 사본은\n       병원 EMR에 등록 후 폐기됩니다.\n\n② 간호사에게 입원동의서 설명 청취\n   • 아기 발찌 2개 수령 (엄마·아빠 각 1개)\n   ⚠ 발찌를 가져오지 않으면 입장 불가\n\n③ 의사에게 나머지 동의서 서명\n\n④ 아기 정리 후 면회\n   아기가 정리되면 약 10분 내로 면회를 진행합니다.\n   (정규 면회 시간 외에도 진행됩니다)\n\n⚠ 24시간 직접 연락 가능한 연락처를 담당 간호사에게 알려주세요.\n   응급 상황, 수술, 검사 시 연락드립니다.', icon: ClipboardList, links: [
+    { title: '입원 절차', desc: '■ 입원 시 준비물\n▸ 갑티슈 1개\n▸ 물티슈 1개\n\n■ 입원 절차\n① 회의실에서 동영상 시청 및 서류 작성\n   • 입원 안내 동영상 시청\n   • 동의서 설명 동영상 시청\n   • 간호정보조사지 작성 (Inborn / Outborn)\n     - 아기의 형제·자매가 있다면 함께 기재해 주세요.\n\n② 간호사에게 입원동의서 설명 청취\n   • 아기 발찌 2개 수령 (엄마·아빠 각 1개)\n   ⚠ 발찌를 가져오지 않으면 입장 불가\n\n③ 의사에게 나머지 동의서 서명\n\n④ 아기 정리 후 면회\n   아기가 정리되면 약 10분 내로 면회를 진행합니다.\n   (정규 면회 시간 외에도 진행됩니다)\n\n⚠ 24시간 직접 연락 가능한 연락처를 담당 간호사에게 알려주세요.\n   응급 상황, 수술, 검사 시 연락드립니다.', icon: ClipboardList,
+      warnings: ['외부(Outborn) 환자의 경우, 지참하신 의무기록 사본은 병원 EMR에 등록 후 폐기됩니다.'],
+      links: [
         { label: '입원절차 안내 동영상', url: 'https://youtu.be/jaQg__TteOI' },
         { label: '동의서 설명 동영상 – 만삭아', url: 'https://m.site.naver.com/1MSoa' },
         { label: '동의서 설명 동영상 – 미숙아', url: 'https://m.site.naver.com/1MSnv' },
@@ -300,7 +302,7 @@ interface DischargeCategory {
   icon: ElementType;
   color: CategoryColor;
   isEmergency?: boolean;
-  cards: { title: string; desc: string; icon: ElementType; links?: { label: string; url: string }[] }[];
+  cards: { title: string; desc: string; icon: ElementType; links?: { label: string; url: string }[]; warnings?: string[] }[];
 }
 
 const colorConfig: Record<CategoryColor, {
@@ -480,7 +482,7 @@ const qnaContents = [] as { question: string; answer: string }[];
 // ─── 메인 컴포넌트 ──────────────────────────
 export default function ParentDashboard() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>('admission');
   const tabToStep: Record<TabId, number> = {
     admission: 1, visit: 1, breastmilk: 1, video: 1, qna: 1,
@@ -611,7 +613,7 @@ export default function ParentDashboard() {
       {/* ═══ 탭 콘텐츠 영역 ═══ */}
       <FontSizeContext.Provider value={fontLevel}>
         <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
-          {activeTab === 'admission' && <ContentTab data={admissionContent} />}
+          {activeTab === 'admission' && <><ContentTab data={admissionContent} /><AdmissionConfirmation user={user} /></>}
           {activeTab === 'visit' && <ContentTab data={visitContent} />}
           {activeTab === 'treatment' && <ContentTab data={treatmentContent} />}
           {activeTab === 'discharge' && <DischargeTab />}
@@ -1036,6 +1038,12 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
                   <div className="overflow-hidden">
                     <div className="px-4 pb-4 pt-0">
                       <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
+                      {card.warnings && card.warnings.map((w, j) => (
+                        <div key={j} className="mt-3 flex items-start gap-2 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg px-3 py-2">
+                          <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+                          <p className={`${dCls(fl)} text-amber-800 font-semibold leading-snug`}>{w}</p>
+                        </div>
+                      ))}
                       {card.links && card.links.length > 0 && (
                         <div className="mt-3 flex flex-col gap-2">
                           {card.links.map((link, j) => (
@@ -1287,6 +1295,109 @@ function QnaTab() {
           <p className="text-xs text-slate-600 leading-relaxed mt-2 pl-6">{item.answer}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── 입원 안내 숙지 확인 컴포넌트 ──────────
+const ADMISSION_CONFIRM_KEY = 'nicu-admission-confirmation-v1';
+
+const confirmItems = [
+  '입원절차 안내 동영상 시청 완료',
+  '동의서 설명 동영상 시청 완료 (해당 동영상)',
+  '입원 안내 내용 (입원 절차·면회 규정 등) 숙지 완료',
+  '위 내용을 모두 숙지하였음을 확인합니다',
+];
+
+interface AdmissionConfirmRecord {
+  userId: number;
+  userName: string;
+  userEmail: string;
+  confirmedAt: string;
+}
+
+function AdmissionConfirmation({ user }: { user: { id: number; name: string; email: string } | null }) {
+  const fl = useContext(FontSizeContext);
+  const userId = user?.id ?? 0;
+
+  const getSaved = (): AdmissionConfirmRecord | null => {
+    try {
+      const all: AdmissionConfirmRecord[] = JSON.parse(localStorage.getItem(ADMISSION_CONFIRM_KEY) || '[]');
+      return all.find(r => r.userId === userId) ?? null;
+    } catch { return null; }
+  };
+
+  const [saved, setSaved] = useState<AdmissionConfirmRecord | null>(getSaved);
+  const [checked, setChecked] = useState<Record<number, boolean>>({});
+  const allChecked = confirmItems.every((_, i) => checked[i]);
+
+  const handleConfirm = () => {
+    const record: AdmissionConfirmRecord = {
+      userId,
+      userName: user?.name ?? '보호자',
+      userEmail: user?.email ?? '',
+      confirmedAt: new Date().toISOString(),
+    };
+    try {
+      const all: AdmissionConfirmRecord[] = JSON.parse(localStorage.getItem(ADMISSION_CONFIRM_KEY) || '[]');
+      const filtered = all.filter(r => r.userId !== userId);
+      localStorage.setItem(ADMISSION_CONFIRM_KEY, JSON.stringify([...filtered, record]));
+    } catch {}
+    setSaved(record);
+  };
+
+  if (saved) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+        <div className="size-9 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+          <Check className="size-5 text-green-600" />
+        </div>
+        <div>
+          <p className={`${tCls(fl)} font-bold text-green-700`}>입원 안내 숙지 확인 완료</p>
+          <p className={`${dCls(fl)} text-green-600 mt-0.5`}>
+            {new Date(saved.confirmedAt).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+          </p>
+          <p className={`${dCls(fl)} text-green-600 mt-1`}>담당 간호사에게 숙지 여부가 전달되었습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-primary/10 overflow-hidden">
+      <div className="bg-primary/5 px-4 py-3 border-b border-primary/10 flex items-center gap-2">
+        <ClipboardList className="size-5 text-primary shrink-0" />
+        <div>
+          <p className={`${tCls(fl)} font-bold text-primary`}>입원 안내 숙지 확인</p>
+          <p className={`${dCls(fl)} text-slate-500 mt-0.5`}>아래 항목을 모두 체크하신 후 확인 완료를 눌러주세요.</p>
+        </div>
+      </div>
+      <div className="p-4 space-y-3">
+        {confirmItems.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => setChecked(prev => ({ ...prev, [i]: !prev[i] }))}
+            className="w-full flex items-start gap-3 text-left"
+          >
+            <div className={`size-5 md:size-6 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${checked[i] ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/50'}`}>
+              {checked[i] && <Check className="size-3 md:size-4 text-white" />}
+            </div>
+            <span className={`${dCls(fl)} text-slate-700 leading-snug`}>{item}</span>
+          </button>
+        ))}
+        <button
+          onClick={handleConfirm}
+          disabled={!allChecked}
+          className={`w-full mt-2 py-3 rounded-xl font-bold transition-all ${dCls(fl)} ${allChecked ? 'bg-primary text-white shadow-md hover:bg-primary/90 active:scale-[0.98]' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+        >
+          확인 완료
+        </button>
+        {allChecked && (
+          <p className={`${dCls(fl)} text-center text-slate-400`}>
+            확인 완료 시 NICU 담당 간호사에게 숙지 여부가 전달됩니다.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
