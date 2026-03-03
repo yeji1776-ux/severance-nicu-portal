@@ -174,7 +174,6 @@ const dischargeContent = {
       links: [
         { label: '기관절개관 관리 동영상', url: 'https://youtu.be/Aa167NZJ2PU?si=cod5V8VJVnTBxSCP' },
         { label: '기관절개관 환자 흡인 동영상', url: 'https://youtu.be/OALBjgSvUlI?si=Z_nzEonhTaoZPSnm' },
-        { label: '소아 기관절개관 관리 (참고)', url: 'http://m.site.naver.com/0QYgH' },
       ],
       desc: `■ 소독 준비물\n• 멸균 장갑\n• 작은 Y거즈 (α 베타폼 T 또는 튜브가드)\n• 포비돈 스왑 1세트 (또는 생리식염수)\n\n■ 소독 방법\n① 손을 씻고 마스크를 착용합니다.\n② 포비돈 스왑과 Y거즈를 개봉하여 준비합니다.\n③ 이전에 적용했던 Y거즈를 제거합니다.\n④ 기관절개관 부위의 발적이나 부종이 있는지 확인합니다.\n⑤ 멸균 장갑을 착용합니다. (장갑 표면이 손에 닿지 않도록 주의)\n⑥ 포비돈 스왑으로 기관절개관 삽입 부위를 원 그리듯 소독합니다. (2회 반복)\n⑦ Y거즈를 Y자가 되도록 아래에서 위로 끼웁니다.\n⑧ 고정 끈의 상태 및 피부손상 여부를 확인합니다. 새끼손가락 한 개 정도의 여유만 두고 타이트하게 묶습니다.\n\n■ 일반적 사항\n• 1일 1회 이상 소독 (젖은 경우 더 자주)\n• 기관절개관 교체: 1회/1일\n• 방 안 온도·습도를 적절하게 조절합니다.\n• 커프 압력: 20~25mmHg 유지\n• 비상용으로 같은 크기의 기관절개관을 구비해 둡니다.\n\n■ 기관절개관 이탈 예방\n• 목 끈은 새끼손가락 한 개만 들어갈 정도로 유지합니다.\n• 이동 시에는 기관절개관을 항상 주의깊게 확인합니다.\n• Y자 거즈 부위가 들뜨지 않는지 자주 확인합니다.\n\n■ 이탈 시 대처법\n① 기존 튜브로 즉시 재삽입 후 앰부백으로 산소 공급\n② 재삽입 실패 시: 구멍을 멸균 거즈로 막고 산소마스크+앰부백으로 입으로 산소 공급\n③ 119 신고 후 병원 이송\n\n■ 병원에 연락해야 하는 경우\n• 숨소리가 거칠어지거나 호흡 곤란을 보일 때\n• 내쉬는 공기가 약하게 느껴지며 청색증이 나타날 때\n• 출혈이 지속되거나 다량 출혈인 경우\n• 기관절개관 튜브가 빠진 경우\n• 석션 카테터가 들어가지 않는 경우\n• 해열제로 해결되지 않는 38도 이상의 발열`,
     },
@@ -440,8 +439,7 @@ const videoCategories: VideoCategory[] = [
       { title: '위관 영양 – syringe pump', url: 'https://youtu.be/29z4V1djULc?si=KcV1Dz0nFcFpY3F6' },
       { title: '위관 영양 – 영양백', url: 'https://youtu.be/z0sLmlWuYzU?si=Bu1TmlLF8OqlBxxC' },
       { title: '기관절개관 환자 흡인', url: 'https://youtu.be/OALBjgSvUlI?si=Z_nzEonhTaoZPSnm' },
-      { title: '소아 기관절개관 관리 (영상)', url: 'https://youtu.be/Aa167NZJ2PU?si=cod5V8VJVnTBxSCP' },
-      { title: '소아 기관절개관 관리 (참고)', url: 'http://m.site.naver.com/0QYgH' },
+      { title: '소아 기관절개관 관리', url: 'https://youtu.be/Aa167NZJ2PU?si=cod5V8VJVnTBxSCP' },
     ],
   },
   {
