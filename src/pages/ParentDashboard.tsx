@@ -160,13 +160,22 @@ const dischargeContent = {
     {
       title: '위관 영양',
       icon: Baby,
-      links: [{ label: '위관 영양 동영상', url: 'https://youtu.be/S16hffj1iBI' }],
+      links: [
+        { label: '위관 영양 동영상 (기본)', url: 'https://youtu.be/S16hffj1iBI' },
+        { label: '위관 영양 – feeding pump', url: 'https://youtu.be/gMr8ysh10F0?si=o9oUtLz0WYfXyipC' },
+        { label: '위관 영양 – syringe pump', url: 'https://youtu.be/29z4V1djULc?si=KcV1Dz0nFcFpY3F6' },
+        { label: '위관 영양 – 영양백', url: 'https://youtu.be/z0sLmlWuYzU?si=Bu1TmlLF8OqlBxxC' },
+      ],
       desc: `입안 구조나 기능, 호흡, 신경계 문제 등으로 전량 입으로 먹기 어려운 경우 원활한 성장과 탈수 예방을 위해 시행합니다.\n\n■ 준비물\n• 수유 튜브 (6Fr, 8Fr 등 적절한 크기)\n• 줄자, 멸균 장갑\n• 멸균 생리식염수 또는 끓였다 식힌 물\n• 고정 테이프 (하이파픽스), 헤파린 캡\n• 10cc 주사기, 청진기, 손 소독제, 가위\n\n■ 위관 삽입 길이 측정\n코 끝 → 귓볼 → (귓볼 + 배꼽 중간 지점)까지의 합산 길이\n\n■ 위관 삽입 방법\n① 손을 씻습니다.\n② 적합한 삽입 길이를 측정합니다.\n③ 아기가 위관을 잡지 않도록 싸개로 감쌉니다.\n④ 멸균 장갑을 착용합니다.\n⑤ 위관 끝에 멸균 생리식염수를 묻힌 후 코로 천천히 삽입합니다.\n⑥ 측정한 길이만큼 삽입 후 고정 테이프로 볼에 위관을 고정합니다.\n\n■ 위관 위치 확인 방법\n1. 주사기 사용: 위관 뚜껑 아래를 꺾어 주사기 연결 → 위 내용물(잔유) 확인\n2. 청진기 사용: 10cc 주사기에 2cc 공기 채워 연결 → 배꼽과 명치 중간에 청진기 대고 공기 주입 시 소리 확인\n3. X-ray 확인: 저항이 느껴지거나 위치 불확실 시\n\n■ 위관 영양 방법\n① 위관 위치 확인 후 잔유를 확인합니다.\n② 구강 수유 가능하면 먼저 구강 수유를 합니다.\n③ 위관 수유 전 머리를 약간 올려 오른쪽으로 눕힙니다.\n④ 50cc 주사기를 연결하고 아기 머리에서 20cm 위에 두어 20~30분 동안 중력으로 천천히 들어가도록 합니다.\n\n■ 위관 영양 주의사항\n• 위관은 하루 간격으로 교환하며 교환 시 코구멍 위치를 바꿉니다.\n• 식사 20~30분 전에 물을 먼저 넣어 확인합니다.\n• 잔유의 양상이 변하거나 색이 변하면 병원에 문의하세요.\n• 위관 수유 중에는 절대로 아기를 혼자 두지 않습니다.`,
     },
     {
       title: '소아 기관절개관 관리',
       icon: Wind,
-      links: [{ label: '소아 기관절개관 관리 영상', url: 'http://m.site.naver.com/0QYgH' }],
+      links: [
+        { label: '기관절개관 관리 동영상', url: 'https://youtu.be/Aa167NZJ2PU?si=cod5V8VJVnTBxSCP' },
+        { label: '기관절개관 환자 흡인 동영상', url: 'https://youtu.be/OALBjgSvUlI?si=Z_nzEonhTaoZPSnm' },
+        { label: '소아 기관절개관 관리 (참고)', url: 'http://m.site.naver.com/0QYgH' },
+      ],
       desc: `■ 소독 준비물\n• 멸균 장갑\n• 작은 Y거즈 (α 베타폼 T 또는 튜브가드)\n• 포비돈 스왑 1세트 (또는 생리식염수)\n\n■ 소독 방법\n① 손을 씻고 마스크를 착용합니다.\n② 포비돈 스왑과 Y거즈를 개봉하여 준비합니다.\n③ 이전에 적용했던 Y거즈를 제거합니다.\n④ 기관절개관 부위의 발적이나 부종이 있는지 확인합니다.\n⑤ 멸균 장갑을 착용합니다. (장갑 표면이 손에 닿지 않도록 주의)\n⑥ 포비돈 스왑으로 기관절개관 삽입 부위를 원 그리듯 소독합니다. (2회 반복)\n⑦ Y거즈를 Y자가 되도록 아래에서 위로 끼웁니다.\n⑧ 고정 끈의 상태 및 피부손상 여부를 확인합니다. 새끼손가락 한 개 정도의 여유만 두고 타이트하게 묶습니다.\n\n■ 일반적 사항\n• 1일 1회 이상 소독 (젖은 경우 더 자주)\n• 기관절개관 교체: 1회/1일\n• 방 안 온도·습도를 적절하게 조절합니다.\n• 커프 압력: 20~25mmHg 유지\n• 비상용으로 같은 크기의 기관절개관을 구비해 둡니다.\n\n■ 기관절개관 이탈 예방\n• 목 끈은 새끼손가락 한 개만 들어갈 정도로 유지합니다.\n• 이동 시에는 기관절개관을 항상 주의깊게 확인합니다.\n• Y자 거즈 부위가 들뜨지 않는지 자주 확인합니다.\n\n■ 이탈 시 대처법\n① 기존 튜브로 즉시 재삽입 후 앰부백으로 산소 공급\n② 재삽입 실패 시: 구멍을 멸균 거즈로 막고 산소마스크+앰부백으로 입으로 산소 공급\n③ 119 신고 후 병원 이송\n\n■ 병원에 연락해야 하는 경우\n• 숨소리가 거칠어지거나 호흡 곤란을 보일 때\n• 내쉬는 공기가 약하게 느껴지며 청색증이 나타날 때\n• 출혈이 지속되거나 다량 출혈인 경우\n• 기관절개관 튜브가 빠진 경우\n• 석션 카테터가 들어가지 않는 경우\n• 해열제로 해결되지 않는 38도 이상의 발열`,
     },
     {
@@ -403,7 +412,59 @@ const prohibitedMedications = [
   { name: '후라질(니트로푸란토인)', note: '용혈성 빈혈 위험, 수유 금기' },
 ];
 
-const qrContents = [] as { title: string; desc: string; url: string }[];
+interface VideoItem { title: string; url: string }
+interface VideoCategory { id: string; title: string; icon: ElementType; bg: string; border: string; iconBg: string; iconText: string; titleText: string; items: VideoItem[] }
+
+const videoCategories: VideoCategory[] = [
+  {
+    id: 'basics',
+    title: '입원 & 기본 정보',
+    icon: Hospital,
+    bg: 'bg-blue-50', border: 'border-blue-100', iconBg: 'bg-blue-100', iconText: 'text-blue-600', titleText: 'text-blue-700',
+    items: [
+      { title: '이른둥이 제대로 알기', url: 'https://youtu.be/ShQ-1Zt5-kg?si=h9bt-hjpcHEf7_yt' },
+      { title: '입원절차 안내 동영상', url: 'https://youtu.be/jaQg__TteOI' },
+      { title: '신생아 호흡곤란증후군 Q&A', url: 'https://youtu.be/MuawgTqgPWY?si=NSFf38MHjuK_VNnr' },
+      { title: '신생아 황달', url: 'https://youtu.be/NjTtrTdoW28?si=xDTr3VC-F2QLDw9j' },
+    ],
+  },
+  {
+    id: 'care',
+    title: '가정 처치 교육',
+    icon: ClipboardList,
+    bg: 'bg-emerald-50', border: 'border-emerald-100', iconBg: 'bg-emerald-100', iconText: 'text-emerald-600', titleText: 'text-emerald-700',
+    items: [
+      { title: '네블라이저 흡입요법', url: 'https://youtu.be/MQ37L2bc3pk' },
+      { title: '흉부 물리요법', url: 'https://youtu.be/CTESaafcfzg' },
+      { title: '위관 영양 – feeding pump', url: 'https://youtu.be/gMr8ysh10F0?si=o9oUtLz0WYfXyipC' },
+      { title: '위관 영양 – syringe pump', url: 'https://youtu.be/29z4V1djULc?si=KcV1Dz0nFcFpY3F6' },
+      { title: '위관 영양 – 영양백', url: 'https://youtu.be/z0sLmlWuYzU?si=Bu1TmlLF8OqlBxxC' },
+      { title: '기관절개관 환자 흡인', url: 'https://youtu.be/OALBjgSvUlI?si=Z_nzEonhTaoZPSnm' },
+      { title: '소아 기관절개관 관리 (영상)', url: 'https://youtu.be/Aa167NZJ2PU?si=cod5V8VJVnTBxSCP' },
+      { title: '소아 기관절개관 관리 (참고)', url: 'http://m.site.naver.com/0QYgH' },
+    ],
+  },
+  {
+    id: 'emergency',
+    title: '응급·안전',
+    icon: AlertTriangle,
+    bg: 'bg-rose-50', border: 'border-rose-100', iconBg: 'bg-rose-100', iconText: 'text-rose-600', titleText: 'text-rose-700',
+    items: [
+      { title: '영아돌연사 예방법', url: 'https://youtu.be/Gk0tEAtc6Ns?si=EjWckuM6EmVCQmq_' },
+      { title: '영아 심폐소생술 (CPR)', url: 'https://youtu.be/Ph00dGUNIbc' },
+      { title: '영아 질식 사고 대처법', url: 'https://youtu.be/TtO-aXX2n-w' },
+    ],
+  },
+  {
+    id: 'hospital',
+    title: '병원 정보',
+    icon: Home,
+    bg: 'bg-violet-50', border: 'border-violet-100', iconBg: 'bg-violet-100', iconText: 'text-violet-600', titleText: 'text-violet-700',
+    items: [
+      { title: '세브란스 어린이병원 홈페이지', url: 'https://sev-children.severance.healthcare' },
+    ],
+  },
+];
 const qnaContents = [] as { question: string; answer: string }[];
 
 // ─── 메인 컴포넌트 ──────────────────────────
@@ -1141,35 +1202,50 @@ function BreastmilkTab() {
 
 // ─── QR 영상 자료 탭 ────────────────────────
 function QrTab() {
-  if (qrContents.length === 0) {
-    return (
-      <div className="bg-white rounded-xl p-8 shadow-sm border border-primary/5 text-center">
-        <QrCode className="size-10 text-slate-200 mx-auto mb-3" />
-        <p className="text-sm font-semibold text-slate-400">영상 자료 준비 중입니다</p>
-        <p className="text-xs text-slate-300 mt-1">곧 업데이트될 예정입니다</p>
-      </div>
-    );
-  }
+  const fl = useContext(FontSizeContext);
+  const [open, setOpen] = useState<Record<string, boolean>>({ basics: true, care: true, emergency: true, hospital: true });
+  const toggle = (id: string) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <div className="grid grid-cols-1 gap-3">
-      {qrContents.map((item, i) => (
-        <a
-          key={i}
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-white rounded-xl p-4 shadow-sm border border-primary/5 flex items-center gap-3 hover:border-primary/20 transition-all active:scale-[0.98]"
-        >
-          <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <QrCode className="size-5" />
+    <div className="space-y-3">
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-primary/5">
+        <h3 className="text-base font-bold text-primary mb-1">교육 영상 자료실</h3>
+        <p className={`${dCls(fl)} text-slate-500 leading-relaxed`}>카테고리별로 관련 동영상을 모았습니다. 탭하면 해당 영상으로 이동합니다.</p>
+      </div>
+
+      {videoCategories.map(cat => (
+        <div key={cat.id} className={`rounded-xl border ${cat.border} overflow-hidden`}>
+          <button
+            onClick={() => toggle(cat.id)}
+            className={`w-full flex items-center gap-3 p-4 ${cat.bg} text-left`}
+          >
+            <div className={`size-9 rounded-lg ${cat.iconBg} ${cat.iconText} flex items-center justify-center shrink-0`}>
+              <cat.icon className="size-5" />
+            </div>
+            <p className={`${tCls(fl)} font-bold ${cat.titleText} flex-1`}>{cat.title}</p>
+            <span className={`text-xs font-semibold ${cat.iconText} bg-white/60 px-2 py-0.5 rounded-full mr-1`}>{cat.items.length}개</span>
+            <ChevronDown className={`size-4 ${cat.iconText} shrink-0 transition-transform duration-200 ${open[cat.id] ? 'rotate-180' : ''}`} />
+          </button>
+          <div className={`grid transition-all duration-200 ease-in-out ${open[cat.id] ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="bg-white divide-y divide-slate-50">
+                {cat.items.map((item, j) => (
+                  <a
+                    key={j}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors active:scale-[0.99]"
+                  >
+                    <PlayCircle className={`size-5 shrink-0 ${cat.iconText}`} />
+                    <span className={`${dCls(fl)} text-slate-700 flex-1 leading-snug`}>{item.title}</span>
+                    <ExternalLink className="size-3.5 shrink-0 text-slate-300" />
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-slate-800">{item.title}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
-          </div>
-          <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full shrink-0">바로가기</span>
-        </a>
+        </div>
       ))}
     </div>
   );
