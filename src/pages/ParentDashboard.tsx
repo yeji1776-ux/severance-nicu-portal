@@ -199,8 +199,23 @@ interface ChecklistCategory { id: string; title: string; icon: ElementType; item
 
 const dischargeChecklist: ChecklistCategory[] = [
   {
+    id: 'basic',
+    title: '퇴원 당일 기본 준비물',
+    icon: Home,
+    items: [
+      { id: 'ba-1', label: '아기 옷' },
+      { id: 'ba-2', label: '손싸개' },
+      { id: 'ba-3', label: '발싸개' },
+      { id: 'ba-4', label: '속싸개' },
+      { id: 'ba-5', label: '겉싸개' },
+      { id: 'ba-6', label: '카시트 (필수)' },
+      { id: 'ba-7', label: '보호자 신분증' },
+      { id: 'ba-8', label: '아이스박스 (모유가 남은 경우)' },
+    ],
+  },
+  {
     id: 'nebulizer',
-    title: '네블라이저 흡입요법',
+    title: '네블라이저 흡입요법 ∙ 해당 시',
     icon: Wind,
     items: [
       { id: 'neb-1', label: '네블라이저 기계' },
@@ -209,7 +224,7 @@ const dischargeChecklist: ChecklistCategory[] = [
   },
   {
     id: 'tube-feeding',
-    title: '위관 영양',
+    title: '위관 영양 ∙ 해당 시',
     icon: Baby,
     items: [
       { id: 'tf-1', label: '수유 튜브 (6Fr, 8Fr 등)' },
@@ -227,7 +242,7 @@ const dischargeChecklist: ChecklistCategory[] = [
   },
   {
     id: 'trach',
-    title: '기관절개관 관리',
+    title: '기관절개관 관리 ∙ 해당 시',
     icon: Wind,
     items: [
       { id: 'tr-1', label: '멸균 장갑' },
@@ -238,7 +253,7 @@ const dischargeChecklist: ChecklistCategory[] = [
   },
   {
     id: 'broviac',
-    title: '브로비악 카테터 관리',
+    title: '브로비악 카테터 관리 ∙ 해당 시',
     icon: Syringe,
     items: [
       { id: 'br-1', label: '헤파린 캡' },
@@ -389,7 +404,13 @@ export default function ParentDashboard() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>('admission');
-  const [currentJourneyStep] = useState(1);
+  const tabToStep: Record<TabId, number> = {
+    admission: 1, visit: 1, breastmilk: 1, video: 1, qna: 1,
+    treatment: 2,
+    discharge: 3,
+    outpatient: 4,
+  };
+  const currentJourneyStep = tabToStep[activeTab];
   const [fontLevel, setFontLevel] = useState<number>(() => {
     try { return Number(localStorage.getItem(FONT_STORAGE_KEY) ?? '0'); } catch { return 0; }
   });
