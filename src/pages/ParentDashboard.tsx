@@ -42,8 +42,8 @@ import { useAuth } from '../context/AuthContext';
 // ─── 폰트 크기 컨텍스트 ─────────────────────
 const FONT_STORAGE_KEY = 'nicu-font-size';
 const FontSizeContext = createContext(0);
-const dCls = (l: number) => (['text-xs', 'text-sm', 'text-base'] as const)[l];
-const tCls = (l: number) => (['text-sm', 'text-base', 'text-lg'] as const)[l];
+const dCls = (l: number) => (['text-xs md:text-sm lg:text-base', 'text-sm md:text-base lg:text-lg', 'text-base md:text-lg lg:text-xl'] as const)[l];
+const tCls = (l: number) => (['text-sm md:text-base lg:text-lg', 'text-base md:text-lg lg:text-xl', 'text-lg md:text-xl lg:text-2xl'] as const)[l];
 
 // ─── 타입 ───────────────────────────────────
 type TabId = 'admission' | 'visit' | 'treatment' | 'discharge' | 'outpatient' | 'breastmilk' | 'video' | 'qna';
@@ -516,16 +516,16 @@ export default function ParentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7f8] pb-20 max-w-lg mx-auto relative">
+    <div className="min-h-screen bg-[#f5f7f8] pb-24 max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto relative">
       {/* ═══ 헤더 ═══ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-primary/10 bg-white/95 backdrop-blur-md px-4 py-3">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-primary/10 bg-white/95 backdrop-blur-md px-4 md:px-6 lg:px-8 py-3 md:py-4">
         <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => navigate('/')}>
-          <div className="flex items-center justify-center size-9 rounded-lg bg-primary text-accent-yellow shrink-0">
-            <Hospital className="size-5" />
+          <div className="flex items-center justify-center size-9 md:size-11 rounded-lg bg-primary text-accent-yellow shrink-0">
+            <Hospital className="size-5 md:size-6" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-primary text-base font-bold leading-tight tracking-tight truncate">Severance NICU</h1>
-            <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider">보호자 포털</p>
+            <h1 className="text-primary text-base md:text-lg lg:text-xl font-bold leading-tight tracking-tight truncate">Severance NICU</h1>
+            <p className="text-slate-500 text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-wider">보호자 포털</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -552,15 +552,15 @@ export default function ParentDashboard() {
       </header>
 
       {/* ═══ 서브헤더 ═══ */}
-      <div className="bg-primary px-4 py-4">
-        <h2 className="text-white text-lg font-bold">보호자 가이드</h2>
-        <p className="text-white/70 text-xs mt-0.5">입원부터 퇴원까지, 우리 아이를 위한 안내</p>
+      <div className="bg-primary px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <h2 className="text-white text-lg md:text-xl lg:text-2xl font-bold">보호자 가이드</h2>
+        <p className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5">입원부터 퇴원까지, 우리 아이를 위한 안내</p>
       </div>
 
       {/* ═══ 여정 프로그레스 바 ═══ */}
-      <div className="bg-white px-4 py-3 border-b border-slate-100">
+      <div className="bg-white px-4 md:px-6 lg:px-8 py-3 md:py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <p className="text-xs font-bold text-slate-500 shrink-0">우리 아이의 여정</p>
+          <p className="text-xs md:text-sm lg:text-base font-bold text-slate-500 shrink-0">우리 아이의 여정</p>
           <div className="flex items-center flex-1 relative">
             <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200" />
             <div
@@ -586,21 +586,21 @@ export default function ParentDashboard() {
       </div>
 
       {/* ═══ 카테고리 탭 ═══ */}
-      <div className="bg-white border-b border-slate-100 px-2 py-2">
-        <div className="flex flex-wrap gap-1">
+      <div className="bg-white border-b border-slate-100 px-2 md:px-6 lg:px-8 py-2 md:py-3">
+        <div className="flex flex-wrap gap-1 md:gap-2">
           {categoryTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm lg:text-base font-semibold whitespace-nowrap transition-all ${
                   isActive
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
                 }`}
               >
-                <tab.icon className="size-3.5" />
+                <tab.icon className="size-3.5 md:size-4 lg:size-5" />
                 {tab.label}
               </button>
             );
@@ -610,7 +610,7 @@ export default function ParentDashboard() {
 
       {/* ═══ 탭 콘텐츠 영역 ═══ */}
       <FontSizeContext.Provider value={fontLevel}>
-        <div className="px-4 py-4 space-y-4">
+        <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
           {activeTab === 'admission' && <ContentTab data={admissionContent} />}
           {activeTab === 'visit' && <ContentTab data={visitContent} />}
           {activeTab === 'treatment' && <ContentTab data={treatmentContent} />}
@@ -623,7 +623,7 @@ export default function ParentDashboard() {
       </FontSizeContext.Provider>
 
       {/* ═══ 연락처 ═══ */}
-      <div id="contact-section" className="px-4 pb-6">
+      <div id="contact-section" className="px-4 md:px-6 lg:px-8 pb-6">
         <div className="bg-primary/5 rounded-xl p-4 flex items-start gap-3 border border-primary/10">
           <Phone className="size-5 text-primary mt-0.5 shrink-0" />
           <div>
@@ -636,8 +636,8 @@ export default function ParentDashboard() {
       </div>
 
       {/* ═══ 하단 네비게이션 ═══ */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto">
-        <div className="grid grid-cols-8 border-t border-slate-200 bg-white/95 backdrop-blur-md px-1 pb-5 pt-1.5">
+      <nav className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto grid grid-cols-8 border-t border-slate-200 bg-white/95 backdrop-blur-md px-1 md:px-4 lg:px-8 pb-5 pt-1.5 md:pt-2 md:pb-3">
           {[
             { id: 'admission', label: '입원', icon: Hospital },
             { id: 'visit', label: '면회', icon: Users },
@@ -657,8 +657,8 @@ export default function ParentDashboard() {
                   isActive ? 'text-primary' : 'text-slate-400'
                 }`}
               >
-                <item.icon className={`size-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
-                <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
+                <item.icon className={`size-5 md:size-6 lg:size-7 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                <span className={`text-[10px] md:text-xs lg:text-sm ${isActive ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
               </button>
             );
           })}
@@ -896,7 +896,7 @@ function DischargeDrillDown({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {category.cards.map((card, i) => {
           const isOpen = openCards[i] ?? false;
           return (
@@ -909,8 +909,8 @@ function DischargeDrillDown({
                 onClick={() => toggle(i)}
                 className="w-full flex items-center gap-3 p-4 text-left"
               >
-                <div className="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <card.icon className="size-5" />
+                <div className="size-10 md:size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <card.icon className="size-5 md:size-6" />
                 </div>
                 <p className={`${tCls(fl)} font-bold text-slate-800 flex-1`}>{card.title}</p>
                 <ChevronDown
@@ -1009,7 +1009,7 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
       )}
 
       {data.cards.length > 0 && (
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {data.cards.map((card, i) => {
             const isOpen = openCards[i] ?? false;
             return (
