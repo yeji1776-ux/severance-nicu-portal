@@ -108,7 +108,7 @@ const visitContent = {
 const treatmentContent = {
   title: '치료 안내',
   description: 'NICU에서 시행되는 주요 치료 및 검사에 대한 안내입니다.',
-  tip: '치료 과정에서 궁금한 점은 담당 의사·간호사에게 언제든지 질문하세요.',
+  tip: '치료 과정에서 궁금한 점은 담당 간호사에게 말씀해 주시면 의료진에게 전달하겠습니다.',
   cards: [
     {
       title: '호흡 관리',
