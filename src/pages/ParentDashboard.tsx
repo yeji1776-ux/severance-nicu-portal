@@ -33,6 +33,8 @@ import {
   Eye,
   Check,
   Users,
+  PlayCircle,
+  ExternalLink,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -78,8 +80,8 @@ const admissionContent = {
   description: '입원 수속 관련 안내입니다.',
   tip: '',
   cards: [
-    { title: '입원 수속 장소 안내', desc: '▸ 평일 08:30~17:30 (점심시간 12:30~13:30 포함)\n어린이병원 4층 입·퇴원 창구\nTel. 02-2228-5946\n\n▸ 토요일 13:30~17:30 / 공휴일 08:30~17:30\n본관 3층 입원 원무팀 1, 2번 창구\nTel. 02-2228-7000\n\n※ 본관 3층 가는 길: 어린이병원 1층에서 외부로 나가 본관 3층으로, 또는 어린이병원 4층 연결통로 → 본관 5층 → 3층 로비로 이동', icon: Hospital },
-    { title: '입원 절차', desc: '■ 입원 시 준비물\n▸ 갑티슈 1개\n▸ 물티슈 1개\n\n■ 입원 절차\n① 회의실에서 동영상 시청 및 서류 작성\n   • 입원 안내 동영상 시청\n   • 동의서 설명 동영상 시청\n   • 간호정보조사지 작성 (Inborn / Outborn)\n\n② 간호사에게 입원동의서 설명 청취\n   • 아기 발찌 2개 수령 (엄마·아빠 각 1개)\n   ⚠ 발찌를 가져오지 않으면 입장 불가\n\n③ 의사에게 나머지 동의서 수령\n\n④ 아기 정리 후 면회\n   아기가 정리되면 약 10분 내로 면회를 진행합니다.\n   (정규 면회 시간 외에도 진행됩니다)', icon: ClipboardList },
+    { title: '입원 수속 장소 안내', desc: '▸ 평일 08:30~17:30 (점심시간 12:30~13:30 포함)\n어린이병원 4층 입·퇴원 창구\nTel. 02-2228-5946\n\n▸ 토요일 13:30~17:30 / 공휴일 08:30~17:30\n본관 3층 입원 원무팀 1, 2번 창구\nTel. 02-2228-7000\n\n※ 본관 3층 가는 길: 어린이병원 1층에서 외부로 나가 본관 3층으로, 또는 어린이병원 4층 연결통로 → 본관 5층 → 3층 로비로 이동', icon: Hospital, links: [{ label: '세브란스 어린이병원 홈페이지', url: 'https://sev-children.severance.healthcare' }] },
+    { title: '입원 절차', desc: '■ 입원 시 준비물\n▸ 갑티슈 1개\n▸ 물티슈 1개\n\n■ 입원 절차\n① 회의실에서 동영상 시청 및 서류 작성\n   • 입원 안내 동영상 시청\n   • 동의서 설명 동영상 시청\n   • 간호정보조사지 작성 (Inborn / Outborn)\n\n② 간호사에게 입원동의서 설명 청취\n   • 아기 발찌 2개 수령 (엄마·아빠 각 1개)\n   ⚠ 발찌를 가져오지 않으면 입장 불가\n\n③ 의사에게 나머지 동의서 수령\n\n④ 아기 정리 후 면회\n   아기가 정리되면 약 10분 내로 면회를 진행합니다.\n   (정규 면회 시간 외에도 진행됩니다)', icon: ClipboardList, links: [{ label: '입원절차 안내 동영상', url: 'https://youtu.be/jaQg__TteOI' }] },
   ],
 };
 
@@ -146,21 +148,25 @@ const dischargeContent = {
     {
       title: '네블라이저 흡입요법',
       icon: Wind,
+      links: [{ label: '네블라이저 흡입요법 동영상', url: 'https://youtu.be/MQ37L2bc3pk' }],
       desc: `호흡기 치료에 필요한 약물을 미세한 입자로 분무시켜 기관지·폐에 직접 전달하는 치료법입니다.\n\n■ 주요 처방 약물\n• Salbutamol Sulfate (벤토린®): 기관지 확장제\n• Budesonide (풀미코트®): 염증 조절제, 스테로이드\n• Ipratropium Bromide Hydrate (아트로벤트®): 기관지 확장제\n\n■ 사용 방법\n① 손을 씻습니다.\n② 기계와 처방받은 용량의 약물을 준비합니다.\n③ 기계에 약물을 넣어 준비합니다.\n④ 기계의 전원을 켜고 약이 분무되는 것을 확인합니다.\n⑤ 마스크를 얼굴에 맞닿게 하여 흡입요법을 시작합니다.\n⑥ 약 15분 정도 소요 후 전원을 끕니다.\n⑦ 입안을 닦고 마무리합니다.\n\n■ 시행 시기\n구토·흡인성 폐렴 예방을 위해 식전 또는 식후 최소 1시간 뒤 시행\n\n■ 사용 시 주의사항\n아기가 울면 약물이 폐로 고르게 전달되지 않으므로 안정된 상태에서 시행합니다.\n\n■ 약물별 부작용 및 대처\n• 벤토린: 심장 박동 상승, 심하게 보채거나 손·발 포함 전신 떨림 발생 시 사용 중단 후 진료\n• 풀미코트: 아구창(칸디다증) 생길 수 있으므로 사용 후 입안을 깨끗이 닦기\n• 아트로벤트: 눈에 들어갈 경우 안압 상승·안구 통증 유발 가능, 눈에 들어가지 않도록 주의`,
     },
     {
       title: '흉부 물리요법',
       icon: ActivitySquare,
+      links: [{ label: '흉부 물리요법 동영상', url: 'https://youtu.be/CTESaafcfzg' }],
       desc: `가슴과 등을 두드려 폐에 고여 있는 분비물이 가래로 쉽게 나오도록 도와주는 치료입니다.\n\n■ 시행 방법\n손을 컵 모양으로 만들거나 고무컵으로 촉촉 스냅을 이용하여 부드럽게 두드립니다.\n\n■ 시행 시기\n• 구토 예방을 위해 식전 또는 식후 1시간 뒤에 시행합니다.\n• 네블라이저 흡입요법 후 시행하면 더 효과적입니다.\n\n■ 시행 자세\n• 눕혀서 시행하는 방법\n• 앉아서 시행하는 방법`,
     },
     {
       title: '위관 영양',
       icon: Baby,
+      links: [{ label: '위관 영양 동영상', url: 'https://youtu.be/S16hffj1iBI' }],
       desc: `입안 구조나 기능, 호흡, 신경계 문제 등으로 전량 입으로 먹기 어려운 경우 원활한 성장과 탈수 예방을 위해 시행합니다.\n\n■ 준비물\n• 수유 튜브 (6Fr, 8Fr 등 적절한 크기)\n• 줄자, 멸균 장갑\n• 멸균 생리식염수 또는 끓였다 식힌 물\n• 고정 테이프 (하이파픽스), 헤파린 캡\n• 10cc 주사기, 청진기, 손 소독제, 가위\n\n■ 위관 삽입 길이 측정\n코 끝 → 귓볼 → (귓볼 + 배꼽 중간 지점)까지의 합산 길이\n\n■ 위관 삽입 방법\n① 손을 씻습니다.\n② 적합한 삽입 길이를 측정합니다.\n③ 아기가 위관을 잡지 않도록 싸개로 감쌉니다.\n④ 멸균 장갑을 착용합니다.\n⑤ 위관 끝에 멸균 생리식염수를 묻힌 후 코로 천천히 삽입합니다.\n⑥ 측정한 길이만큼 삽입 후 고정 테이프로 볼에 위관을 고정합니다.\n\n■ 위관 위치 확인 방법\n1. 주사기 사용: 위관 뚜껑 아래를 꺾어 주사기 연결 → 위 내용물(잔유) 확인\n2. 청진기 사용: 10cc 주사기에 2cc 공기 채워 연결 → 배꼽과 명치 중간에 청진기 대고 공기 주입 시 소리 확인\n3. X-ray 확인: 저항이 느껴지거나 위치 불확실 시\n\n■ 위관 영양 방법\n① 위관 위치 확인 후 잔유를 확인합니다.\n② 구강 수유 가능하면 먼저 구강 수유를 합니다.\n③ 위관 수유 전 머리를 약간 올려 오른쪽으로 눕힙니다.\n④ 50cc 주사기를 연결하고 아기 머리에서 20cm 위에 두어 20~30분 동안 중력으로 천천히 들어가도록 합니다.\n\n■ 위관 영양 주의사항\n• 위관은 하루 간격으로 교환하며 교환 시 코구멍 위치를 바꿉니다.\n• 식사 20~30분 전에 물을 먼저 넣어 확인합니다.\n• 잔유의 양상이 변하거나 색이 변하면 병원에 문의하세요.\n• 위관 수유 중에는 절대로 아기를 혼자 두지 않습니다.`,
     },
     {
       title: '소아 기관절개관 관리',
       icon: Wind,
+      links: [{ label: '소아 기관절개관 관리 영상', url: 'http://m.site.naver.com/0QYgH' }],
       desc: `■ 소독 준비물\n• 멸균 장갑\n• 작은 Y거즈 (α 베타폼 T 또는 튜브가드)\n• 포비돈 스왑 1세트 (또는 생리식염수)\n\n■ 소독 방법\n① 손을 씻고 마스크를 착용합니다.\n② 포비돈 스왑과 Y거즈를 개봉하여 준비합니다.\n③ 이전에 적용했던 Y거즈를 제거합니다.\n④ 기관절개관 부위의 발적이나 부종이 있는지 확인합니다.\n⑤ 멸균 장갑을 착용합니다. (장갑 표면이 손에 닿지 않도록 주의)\n⑥ 포비돈 스왑으로 기관절개관 삽입 부위를 원 그리듯 소독합니다. (2회 반복)\n⑦ Y거즈를 Y자가 되도록 아래에서 위로 끼웁니다.\n⑧ 고정 끈의 상태 및 피부손상 여부를 확인합니다. 새끼손가락 한 개 정도의 여유만 두고 타이트하게 묶습니다.\n\n■ 일반적 사항\n• 1일 1회 이상 소독 (젖은 경우 더 자주)\n• 기관절개관 교체: 1회/1일\n• 방 안 온도·습도를 적절하게 조절합니다.\n• 커프 압력: 20~25mmHg 유지\n• 비상용으로 같은 크기의 기관절개관을 구비해 둡니다.\n\n■ 기관절개관 이탈 예방\n• 목 끈은 새끼손가락 한 개만 들어갈 정도로 유지합니다.\n• 이동 시에는 기관절개관을 항상 주의깊게 확인합니다.\n• Y자 거즈 부위가 들뜨지 않는지 자주 확인합니다.\n\n■ 이탈 시 대처법\n① 기존 튜브로 즉시 재삽입 후 앰부백으로 산소 공급\n② 재삽입 실패 시: 구멍을 멸균 거즈로 막고 산소마스크+앰부백으로 입으로 산소 공급\n③ 119 신고 후 병원 이송\n\n■ 병원에 연락해야 하는 경우\n• 숨소리가 거칠어지거나 호흡 곤란을 보일 때\n• 내쉬는 공기가 약하게 느껴지며 청색증이 나타날 때\n• 출혈이 지속되거나 다량 출혈인 경우\n• 기관절개관 튜브가 빠진 경우\n• 석션 카테터가 들어가지 않는 경우\n• 해열제로 해결되지 않는 38도 이상의 발열`,
     },
     {
@@ -181,11 +187,13 @@ const dischargeContent = {
     {
       title: '영아 심폐소생술 (CPR)',
       icon: HeartPulse,
+      links: [{ label: '영아 심폐소생술 동영상', url: 'https://youtu.be/Ph00dGUNIbc' }],
       desc: `심정지 발생 후 4~5분이 경과하면 뇌의 비가역적 손상이 일어납니다. 심박동이 회복될 때까지 인공호흡과 인공 순환으로 뇌와 심장에 산소를 공급합니다.\n\n■ 심폐소생술 순서\n의식 확인 → 119 신고 → 가슴 압박 → 기도 유지 → 인공호흡\n\n■ STEP 1: 의식 확인 및 호흡 확인\n• 아기 발바닥에 자극을 주어 울거나 반응하는지 확인합니다.\n• 반응이 없고 숨을 쉬지 않거나 헐떡거리는 호흡을 보일 경우, 119에 신고하고 즉시 시작합니다.\n\n■ STEP 2: 가슴 압박 30회\n• 위치: 양쪽 유두 연결선과 흉골이 만나는 지점 바로 아래에 두 손가락을 위치합니다.\n• 깊이: 가슴 전후 두께의 최소 1/3\n• 속도: 분당 100~120회\n• 매 압박 후 가슴이 완전히 이완되도록 합니다.\n\n■ STEP 3: 인공호흡 2회\n• 머리를 살짝 뒤로 젖히고 턱을 들어 기도를 유지합니다.\n• 아기의 입과 코를 구조자의 입으로 완전히 덮고 한 숨 당 1초간 불어 2회 실시합니다.\n• 아기의 가슴이 올라오는지 확인합니다.\n\n■ STEP 4: 아기 의식 확인\n• 30:2의 비율로 5회 반복 후 호흡을 확인합니다.\n• 반응을 보이거나 울면 심폐소생술을 중지합니다.\n\n⚠ 반응이 없다면 119 구조대 도착 시까지 계속 심폐소생술을 지속합니다.`,
     },
     {
       title: '영아 질식 사고 예방 및 대처법',
       icon: AlertTriangle,
+      links: [{ label: '질식 사고 대처법 동영상', url: 'https://youtu.be/TtO-aXX2n-w' }],
       desc: `질식은 기도가 막히거나 산소가 부족하여 숨을 쉴 수 없는 상태로, 뇌 손상과 사망에 이를 수 있습니다. 영아는 구강기에 손에 잡히는 물건을 삼키려는 경우가 흔합니다.\n\n■ STEP 1: 의식 확인\n• 아기가 기침하거나 우는 경우, 공기를 충분히 들이 마신다면 방해하지 않습니다.\n• 기침이 없거나 울지 못하는 경우 → 119 신고 후 아래 조치를 취합니다.\n• 의식이 없는 경우 → 즉시 심폐소생술 실시\n\n■ STEP 2: 등 두드리기 5회\n• 아기 얼굴이 아래를 향하도록 팔 위에 올려놓습니다.\n• 다른 손으로 턱을 받쳐주고 아기를 고정합니다.\n• 손바닥으로 양쪽 견갑골(어깨뼈) 사이의 등을 5회 연속 두드립니다.\n\n■ STEP 3: 흉부 압박 5회\n• 등을 두드리던 손으로 아기 머리 뒤를 받치고 얼굴이 위로 향하도록 돌립니다.\n• 양쪽 유두 연결선 중앙 바로 아래의 흉골을 두 손가락으로 5회 압박합니다.\n\n⚠ 이물질이 제거될 때까지 STEP 2~3을 반복합니다.\n아기가 의식을 잃으면 즉시 심폐소생술을 실시합니다.`,
     },
   ],
@@ -274,7 +282,7 @@ interface DischargeCategory {
   icon: ElementType;
   color: CategoryColor;
   isEmergency?: boolean;
-  cards: { title: string; desc: string; icon: ElementType }[];
+  cards: { title: string; desc: string; icon: ElementType; links?: { label: string; url: string }[] }[];
 }
 
 const colorConfig: Record<CategoryColor, {
@@ -844,6 +852,19 @@ function DischargeDrillDown({
                 <div className="overflow-hidden">
                   <div className="px-4 pb-4 pt-0">
                     <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
+                    {card.links && card.links.length > 0 && (
+                      <div className="mt-3 flex flex-col gap-2">
+                        {card.links.map((link, j) => (
+                          <a key={j} href={link.url} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-3 py-2 hover:bg-blue-100 transition-colors"
+                          >
+                            <PlayCircle className="size-4 shrink-0" />
+                            <span className={`${dCls(fl)} font-medium flex-1`}>{link.label}</span>
+                            <ExternalLink className="size-3.5 shrink-0 opacity-60" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -944,6 +965,19 @@ function ContentTab({ data }: { data: { title: string; description: string; tip:
                   <div className="overflow-hidden">
                     <div className="px-4 pb-4 pt-0">
                       <p className={`${dCls(fl)} text-slate-600 leading-relaxed whitespace-pre-line`}>{card.desc}</p>
+                      {card.links && card.links.length > 0 && (
+                        <div className="mt-3 flex flex-col gap-2">
+                          {card.links.map((link, j) => (
+                            <a key={j} href={link.url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-3 py-2 hover:bg-blue-100 transition-colors"
+                            >
+                              <PlayCircle className="size-4 shrink-0" />
+                              <span className={`${dCls(fl)} font-medium flex-1`}>{link.label}</span>
+                              <ExternalLink className="size-3.5 shrink-0 opacity-60" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
