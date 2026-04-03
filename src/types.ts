@@ -119,3 +119,13 @@ export interface ChatMessage {
   content: string;
   created_at: string;
 }
+
+export interface Department {
+  id: number;
+  slug: string;
+  name: string;
+  icon_name: string;
+  description: string;
+  theme_color: string;
+  sort_order: number;
+}

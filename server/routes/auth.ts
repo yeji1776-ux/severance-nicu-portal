@@ -28,7 +28,7 @@ router.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, name: user.name, role: user.role },
+    { id: user.id, email: user.email, name: user.name, role: user.role, department_id: user.department_id ?? null },
     JWT_SECRET,
     { expiresIn: '24h' }
   );
@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
 
   res.json({
     token,
-    user: { id: user.id, email: user.email, name: user.name, role: user.role },
+    user: { id: user.id, email: user.email, name: user.name, role: user.role, department_id: user.department_id ?? null },
   });
 });
 
@@ -150,6 +150,11 @@ router.post('/login-parent', (req, res) => {
 // GET /api/auth/me
 router.get('/me', authenticateToken, (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
+  // Fetch department_id from DB for admin users (ensures fresh data)
+  if (user.role === 'admin') {
+    const dbUser = db.prepare('SELECT department_id FROM users WHERE id = ?').get(user.id) as any;
+    if (dbUser) user.department_id = dbUser.department_id;
+  }
 
   let patients: any[] = [];
   if (user.role === 'parent') {
@@ -171,7 +176,11 @@ router.get('/me', authenticateToken, (req: AuthenticatedRequest, res: Response) 
       }
     }
   } else {
-    patients = db.prepare('SELECT * FROM patients').all();
+    if (user.department_id) {
+      patients = db.prepare('SELECT * FROM patients WHERE department_id = ?').all(user.department_id);
+    } else {
+      patients = db.prepare('SELECT * FROM patients').all();
+    }
   }
 
   res.json({ ...user, patients });

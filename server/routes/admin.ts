@@ -148,14 +148,15 @@ router.get('/patients', (_req, res) => {
 });
 
 router.post('/patients', (req: AuthenticatedRequest, res: Response) => {
-  const { chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date } = req.body;
+  const { chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date, department_id } = req.body;
+  const deptId = department_id || (req as any).user?.department_id || 1;
   const result = db.prepare(`
-    INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date);
+    INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date, department_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date, deptId);
 
   // Initialize care journey for new patient
-  const templates = db.prepare('SELECT id FROM care_journey_templates ORDER BY step_order').all() as any[];
+  const templates = db.prepare('SELECT id FROM care_journey_templates WHERE department_id = ? ORDER BY step_order').all(deptId) as any[];
   for (const tmpl of templates) {
     db.prepare('INSERT INTO patient_care_journey (patient_id, template_id, status) VALUES (?, ?, ?)').run(result.lastInsertRowid, tmpl.id, 'pending');
   }

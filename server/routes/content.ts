@@ -10,31 +10,40 @@ const router = Router();
 // ═══════════════════════════════════════════
 
 // GET /api/content/categories
-router.get('/categories', (_req, res) => {
-  const categories = db.prepare(
-    'SELECT id, name, slug, icon_name, sort_order, is_journey_step, journey_step_order FROM content_categories ORDER BY sort_order'
-  ).all();
+router.get('/categories', (req, res) => {
+  const { department } = req.query;
+  let query = 'SELECT id, name, slug, icon_name, sort_order, is_journey_step, journey_step_order FROM content_categories';
+  const params: any[] = [];
+
+  if (department) {
+    query += ' WHERE department_id = (SELECT id FROM departments WHERE slug = ?)';
+    params.push(department);
+  }
+  query += ' ORDER BY sort_order';
+
+  const categories = db.prepare(query).all(...params);
   res.json(categories);
 });
 
 // POST /api/content/categories — admin only
 router.post('/categories', authenticateToken, requireRole('admin'), (req: AuthenticatedRequest, res) => {
-  const { name, slug, icon_name, sort_order, is_journey_step, journey_step_order } = req.body;
+  const { name, slug, icon_name, sort_order, is_journey_step, journey_step_order, department_id } = req.body;
   if (!name || !slug) {
     return res.status(400).json({ error: '카테고리 이름과 슬러그가 필요합니다.' });
   }
   try {
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM content_categories').get() as any;
     const result = db.prepare(
-      `INSERT INTO content_categories (name, slug, icon_name, sort_order, is_journey_step, journey_step_order)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO content_categories (name, slug, icon_name, sort_order, is_journey_step, journey_step_order, department_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(
       name,
       slug,
       icon_name || 'FileText',
       sort_order ?? ((maxOrder?.max ?? 0) + 1),
       is_journey_step ? 1 : 0,
-      journey_step_order ?? null
+      journey_step_order ?? null,
+      department_id ?? 1
     );
     res.json({ id: result.lastInsertRowid, success: true });
   } catch (e: any) {
@@ -89,7 +98,7 @@ router.put('/categories/reorder', authenticateToken, requireRole('admin'), (req:
 
 // GET /api/content/modules?category=slug&status=published
 router.get('/modules', (req, res) => {
-  const { category, status } = req.query;
+  const { category, status, department } = req.query;
 
   let query = `
     SELECT m.id, m.title, m.icon_name, m.content, m.sort_order,
@@ -109,6 +118,11 @@ router.get('/modules', (req, res) => {
   if (status) {
     query += ' AND m.status = ?';
     params.push(status);
+  }
+
+  if (department) {
+    query += ' AND c.department_id = (SELECT id FROM departments WHERE slug = ?)';
+    params.push(department);
   }
 
   query += ' ORDER BY m.sort_order ASC';

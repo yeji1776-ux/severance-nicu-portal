@@ -8,6 +8,7 @@ export interface DbUser {
   phone: string | null;
   pin_hash: string | null;
   role: 'parent' | 'admin';
+  department_id: number | null;
   created_at: string;
 }
 
@@ -148,5 +149,6 @@ export interface AuthenticatedRequest extends Request {
     email: string | null;
     name: string;
     role: 'parent' | 'admin';
+    department_id: number | null;
   };
 }

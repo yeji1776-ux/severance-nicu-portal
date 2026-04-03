@@ -1,3 +1,14 @@
+-- Departments
+CREATE TABLE IF NOT EXISTS departments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  icon_name TEXT NOT NULL DEFAULT 'Building2',
+  description TEXT,
+  theme_color TEXT NOT NULL DEFAULT '#1e40af',
+  sort_order INTEGER DEFAULT 0
+);
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   pin_hash TEXT,
   role TEXT NOT NULL CHECK(role IN ('parent', 'admin')),
+  department_id INTEGER REFERENCES departments(id),
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -22,6 +34,7 @@ CREATE TABLE IF NOT EXISTS patients (
   discharge_date TEXT,
   nickname TEXT,
   status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'discharged', 'expired')),
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1,
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -40,7 +53,8 @@ CREATE TABLE IF NOT EXISTS care_journey_templates (
   step_order INTEGER NOT NULL,
   label TEXT NOT NULL,
   sub_label TEXT NOT NULL,
-  icon_name TEXT NOT NULL
+  icon_name TEXT NOT NULL,
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1
 );
 
 -- Patient-specific care journey progress
@@ -56,11 +70,13 @@ CREATE TABLE IF NOT EXISTS patient_care_journey (
 CREATE TABLE IF NOT EXISTS content_categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
+  slug TEXT NOT NULL,
   icon_name TEXT NOT NULL DEFAULT 'FileText',
   sort_order INTEGER DEFAULT 0,
   is_journey_step INTEGER DEFAULT 0,
-  journey_step_order INTEGER DEFAULT NULL
+  journey_step_order INTEGER DEFAULT NULL,
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1,
+  UNIQUE(department_id, slug)
 );
 
 -- Content modules (cards)
@@ -86,7 +102,8 @@ CREATE TABLE IF NOT EXISTS discharge_categories (
   subtitle TEXT,
   icon_name TEXT NOT NULL,
   is_emergency INTEGER DEFAULT 0,
-  sort_order INTEGER DEFAULT 0
+  sort_order INTEGER DEFAULT 0,
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1
 );
 
 -- Discharge manual items
@@ -103,14 +120,16 @@ CREATE TABLE IF NOT EXISTS notices (
   title TEXT NOT NULL,
   description TEXT,
   date TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
+  created_at TEXT DEFAULT (datetime('now')),
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1
 );
 
 -- Examinations
 CREATE TABLE IF NOT EXISTS examinations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  description TEXT
+  description TEXT,
+  department_id INTEGER REFERENCES departments(id) DEFAULT 1
 );
 
 -- Patient examinations schedule
@@ -199,6 +218,13 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code);
 CREATE INDEX IF NOT EXISTS idx_invitation_codes_patient ON invitation_codes(patient_id);
 CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+CREATE INDEX IF NOT EXISTS idx_users_dept ON users(department_id);
+CREATE INDEX IF NOT EXISTS idx_content_categories_dept ON content_categories(department_id);
+CREATE INDEX IF NOT EXISTS idx_patients_dept ON patients(department_id);
+CREATE INDEX IF NOT EXISTS idx_discharge_categories_dept ON discharge_categories(department_id);
+CREATE INDEX IF NOT EXISTS idx_care_journey_templates_dept ON care_journey_templates(department_id);
+CREATE INDEX IF NOT EXISTS idx_notices_dept ON notices(department_id);
+CREATE INDEX IF NOT EXISTS idx_examinations_dept ON examinations(department_id);
 
 -- Content overrides (admin-editable card descriptions)
 CREATE TABLE IF NOT EXISTS content_overrides (

@@ -14,12 +14,13 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string | null; name: string; role: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string | null; name: string; role: string; department_id: number | null };
     req.user = {
       id: payload.id,
       email: payload.email,
       name: payload.name,
       role: payload.role as 'parent' | 'admin',
+      department_id: payload.department_id ?? null,
     };
     next();
   } catch {
@@ -56,6 +57,25 @@ export function requirePatientAccess(req: AuthenticatedRequest, res: Response, n
 
   if (!access) {
     return res.status(403).json({ error: '해당 환자에 대한 접근 권한이 없습니다.' });
+  }
+
+  next();
+}
+
+export function requireDepartmentAccess(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: '인증이 필요합니다.' });
+  }
+  if (req.user.role !== 'admin') return next();
+
+  const adminDeptId = req.user.department_id;
+  if (!adminDeptId) {
+    return res.status(403).json({ error: '소속 진료과가 지정되지 않았습니다.' });
+  }
+
+  const targetDeptId = Number(req.query.department_id || req.body?.department_id);
+  if (targetDeptId && targetDeptId !== adminDeptId) {
+    return res.status(403).json({ error: '다른 진료과의 데이터에 접근할 수 없습니다.' });
   }
 
   next();

@@ -1,11 +1,18 @@
+-- Departments
+INSERT INTO departments (slug, name, icon_name, description, theme_color, sort_order) VALUES
+  ('nicu', '신생아집중치료실 (NICU)', 'Baby', '미숙아 및 고위험 신생아를 위한 집중치료실', '#1e40af', 1),
+  ('ortho-ward', '정형외과 병동', 'Bone', '관절·척추 수술 환자를 위한 입원 병동', '#16a34a', 2),
+  ('ccu', '심혈관 중환자실 (CCU)', 'HeartPulse', '급성 심혈관 질환 환자를 위한 중환자실', '#dc2626', 3),
+  ('ped-er', '소아응급실', 'Siren', '소아 응급 환자를 위한 응급진료실', '#ea580c', 4);
+
 -- Users (password: 'password123' hashed with bcryptjs)
-INSERT INTO users (email, password_hash, name, role) VALUES
-  ('parent@test.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', 'Lee Ji-won', 'parent'),
-  ('admin@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', '관리자', 'admin');
+INSERT INTO users (email, password_hash, name, role, department_id) VALUES
+  ('parent@test.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', 'Lee Ji-won', 'parent', NULL),
+  ('admin@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', '관리자', 'admin', 1);
 
 -- Patients
-INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date) VALUES
-  ('0561528', '이하은', 32, 1850, '2024-10-15', '2024-10-15');
+INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date, department_id) VALUES
+  ('0561528', '이하은', 32, 1850, '2024-10-15', '2024-10-15', 1);
 
 -- Parent-Patient relationship
 INSERT INTO parent_patient (user_id, patient_id, relationship) VALUES
