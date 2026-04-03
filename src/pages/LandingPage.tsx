@@ -214,6 +214,8 @@ export default function LandingPage() {
                   </div>
                   <p className="text-xs text-slate-400 mt-1.5">
                     간호사에게 안내받은 등록번호를 입력하세요.
+                    <br />
+                    <span className="text-slate-300">테스트용 번호: 0561528</span>
                   </p>
                 </div>
 

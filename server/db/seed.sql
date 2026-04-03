@@ -5,7 +5,7 @@ INSERT INTO users (email, password_hash, name, role) VALUES
 
 -- Patients
 INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date) VALUES
-  ('NICU-2024-001', '이하은', 32, 1850, '2024-10-15', '2024-10-15');
+  ('0561528', '이하은', 32, 1850, '2024-10-15', '2024-10-15');
 
 -- Parent-Patient relationship
 INSERT INTO parent_patient (user_id, patient_id, relationship) VALUES
