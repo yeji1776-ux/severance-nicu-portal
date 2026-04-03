@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import { seedContent } from '../db/seed-content.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,6 +81,9 @@ export function initializeDatabase() {
     db.exec(seed);
     console.log('Database seeded with initial data');
   }
+
+  // Seed content modules (cards) if empty
+  seedContent(db);
 }
 
 export default db;

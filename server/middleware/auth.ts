@@ -14,7 +14,7 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string; name: string; role: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string | null; name: string; role: string };
     req.user = {
       id: payload.id,
       email: payload.email,

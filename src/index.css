@@ -19,3 +19,28 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* 인쇄 방지 */
+@media print {
+  body * {
+    display: none !important;
+  }
+  body::after {
+    display: block !important;
+    content: "⚠️ 이 문서는 인쇄가 금지된 병원 내부 정보입니다.\A무단 인쇄 및 배포 시 법적 책임이 따를 수 있습니다.";
+    white-space: pre;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    padding: 80px 40px;
+    color: #cc0000;
+  }
+}
+
+/* 텍스트 선택 방지 (보호가 필요한 영역에 적용) */
+.no-capture {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

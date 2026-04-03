@@ -1,9 +1,20 @@
 import { Router, Response } from 'express';
+import crypto from 'crypto';
 import db from '../config/database.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { AuthenticatedRequest } from '../types/index.js';
+import { AuthenticatedRequest, DbInvitationCode } from '../types/index.js';
 
 const router = Router();
+
+function generateInvitationCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 0/O, 1/I 제외
+  let code = '';
+  const bytes = crypto.randomBytes(6);
+  for (let i = 0; i < 6; i++) {
+    code += chars[bytes[i] % chars.length];
+  }
+  return code;
+}
 
 // All admin routes require authentication and admin role
 router.use(authenticateToken, requireRole('admin'));
@@ -120,7 +131,19 @@ router.delete('/notices/:id', (_req, res) => {
 
 // Patient management
 router.get('/patients', (_req, res) => {
-  const patients = db.prepare('SELECT * FROM patients ORDER BY created_at DESC').all();
+  const patients = db.prepare(`
+    SELECT p.*,
+      u.name as guardian_name,
+      u.phone as guardian_phone,
+      u.id as guardian_user_id,
+      ic.code as pending_invitation_code,
+      ic.expires_at as invitation_expires_at
+    FROM patients p
+    LEFT JOIN parent_patient pp ON pp.patient_id = p.id
+    LEFT JOIN users u ON u.id = pp.user_id
+    LEFT JOIN invitation_codes ic ON ic.patient_id = p.id AND ic.used_by IS NULL AND ic.expires_at > datetime('now')
+    ORDER BY p.created_at DESC
+  `).all();
   res.json(patients);
 });
 
@@ -142,10 +165,11 @@ router.post('/patients', (req: AuthenticatedRequest, res: Response) => {
 
 router.put('/patients/:id', (req: AuthenticatedRequest, res: Response) => {
   const { name, gestational_weeks, birth_weight, birth_date, admission_date, discharge_date } = req.body;
+  const status = discharge_date ? 'discharged' : 'active';
   db.prepare(`
-    UPDATE patients SET name = ?, gestational_weeks = ?, birth_weight = ?, birth_date = ?, admission_date = ?, discharge_date = ?
+    UPDATE patients SET name = ?, gestational_weeks = ?, birth_weight = ?, birth_date = ?, admission_date = ?, discharge_date = ?, status = ?
     WHERE id = ?
-  `).run(name, gestational_weeks, birth_weight, birth_date, admission_date, discharge_date || null, req.params.id);
+  `).run(name, gestational_weeks, birth_weight, birth_date, admission_date, discharge_date || null, status, req.params.id);
   res.json({ success: true });
 });
 
@@ -160,6 +184,55 @@ router.put('/patients/:id/journey/:stepId', (req: AuthenticatedRequest, res: Res
     .run(req.user!.id, 'update_journey', 'patient', id, `Step ${stepId} -> ${status}`);
 
   res.json({ success: true });
+});
+
+// Invitation code generation
+router.post('/patients/:id/invitation-code', (req: AuthenticatedRequest, res: Response) => {
+  const patientId = req.params.id;
+
+  const patient = db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId);
+  if (!patient) {
+    return res.status(404).json({ error: '환자를 찾을 수 없습니다.' });
+  }
+
+  // Invalidate any existing unused codes for this patient (optional: keep them)
+  let code = generateInvitationCode();
+  // Ensure uniqueness
+  let attempts = 0;
+  while (db.prepare('SELECT 1 FROM invitation_codes WHERE code = ?').get(code) && attempts < 10) {
+    code = generateInvitationCode();
+    attempts++;
+  }
+
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  db.prepare(`
+    INSERT INTO invitation_codes (code, patient_id, created_by, expires_at)
+    VALUES (?, ?, ?, ?)
+  `).run(code, patientId, req.user!.id, expiresAt);
+
+  db.prepare('INSERT INTO audit_logs (user_id, action, target_type, target_id, details) VALUES (?, ?, ?, ?, ?)')
+    .run(req.user!.id, 'create_invitation', 'patient', patientId, `Code: ${code}`);
+
+  res.status(201).json({ code, expires_at: expiresAt });
+});
+
+router.get('/patients/:id/invitation-code', (_req, res) => {
+  const patientId = _req.params.id;
+
+  const code = db.prepare(`
+    SELECT * FROM invitation_codes
+    WHERE patient_id = ? AND used_by IS NULL AND expires_at > datetime('now')
+    ORDER BY created_at DESC LIMIT 1
+  `).get(patientId) as DbInvitationCode | undefined;
+
+  const guardian = db.prepare(`
+    SELECT u.name, u.phone FROM users u
+    JOIN parent_patient pp ON pp.user_id = u.id
+    WHERE pp.patient_id = ?
+  `).get(patientId) as { name: string; phone: string } | undefined;
+
+  res.json({ invitation: code || null, guardian: guardian || null });
 });
 
 // Notification history

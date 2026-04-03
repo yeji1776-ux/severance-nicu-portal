@@ -10,11 +10,17 @@ import AdminEditor from './pages/AdminEditor';
 import DischargeManual from './pages/DischargeManual';
 import NotificationCenter from './pages/admin/NotificationCenter';
 import AdmissionConfirmations from './pages/admin/AdmissionConfirmations';
+import ScreenCaptureWarning from './components/ScreenCaptureWarning';
+import CaptureNoticeModal from './components/CaptureNoticeModal';
+import Watermark from './components/Watermark';
 
 export default function App() {
   return (
     <ErrorBoundary>
     <AuthProvider>
+      <CaptureNoticeModal />
+      <ScreenCaptureWarning />
+      <Watermark />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />

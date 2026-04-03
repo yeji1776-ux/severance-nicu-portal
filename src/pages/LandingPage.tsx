@@ -1,50 +1,73 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, ShieldCheck, Baby, HeartPulse, AlertTriangle, X, Settings } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Baby, HeartPulse, X, Settings, UserPlus, LogIn, Hash, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const DISMISS_KEY = 'disclaimer_dismissed_date';
-
-function isDismissedToday(): boolean {
-  const saved = localStorage.getItem(DISMISS_KEY);
-  if (!saved) return false;
-  return saved === new Date().toISOString().slice(0, 10);
-}
-
-function dismissForToday() {
-  localStorage.setItem(DISMISS_KEY, new Date().toISOString().slice(0, 10));
-}
-
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { user, guestEnter, logout } = useAuth();
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const { user, registerParent, loginParent } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [chartNumber, setChartNumber] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleEnter = () => {
     if (user && user.role === 'parent') {
       navigate('/dashboard');
       return;
     }
-    // 오늘 하루 안보기 체크된 경우 바로 입장
-    if (isDismissedToday()) {
-      if (user) logout();
-      guestEnter();
-      navigate('/dashboard');
+    setShowAuthModal(true);
+  };
+
+  const handleLogin = async () => {
+    setError('');
+    if (!chartNumber.trim()) {
+      setError('등록번호를 입력해 주세요.');
       return;
     }
-    setShowDisclaimer(true);
+    setLoading(true);
+    try {
+      await loginParent(chartNumber.trim());
+      setShowAuthModal(false);
+      navigate('/dashboard');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAccept = () => {
-    if (user) logout();
-    guestEnter();
-    navigate('/dashboard');
+  const handleRegister = async () => {
+    setError('');
+    if (!chartNumber.trim() || !name.trim()) {
+      setError('등록번호와 이름을 모두 입력해 주세요.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await registerParent(chartNumber.trim(), name.trim());
+      setShowAuthModal(false);
+      navigate('/dashboard');
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDismissToday = () => {
-    dismissForToday();
-    handleAccept();
+  const handleSubmit = () => {
+    if (authMode === 'login') handleLogin();
+    else handleRegister();
+  };
+
+  const switchMode = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setError('');
+    setChartNumber('');
+    setName('');
   };
 
   return (
@@ -119,15 +142,15 @@ export default function LandingPage() {
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/40 rounded-full blur-3xl"></div>
 
-      {/* ═══ 경고 모달 ═══ */}
+      {/* Auth Modal */}
       <AnimatePresence>
-        {showDisclaimer && (
+        {showAuthModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-6"
-            onClick={() => setShowDisclaimer(false)}
+            onClick={() => setShowAuthModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -137,67 +160,98 @@ export default function LandingPage() {
               className="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* 모달 헤더 */}
-              <div className="bg-red-50 px-5 py-4 flex items-start gap-3 border-b border-red-100">
-                <div className="size-10 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                  <AlertTriangle className="size-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-slate-900">이용 안내 및 주의사항</h3>
-                  <p className="text-xs text-red-600 font-medium mt-0.5">입장 전 반드시 확인해 주세요</p>
-                </div>
+              {/* Header */}
+              <div className="bg-primary px-5 py-4 flex items-center justify-between">
+                <h3 className="text-base font-bold text-white">
+                  {authMode === 'login' ? '로그인' : '회원가입'}
+                </h3>
                 <button
-                  onClick={() => setShowDisclaimer(false)}
-                  className="size-8 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors shrink-0"
+                  onClick={() => setShowAuthModal(false)}
+                  className="size-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
                 >
-                  <X className="size-4 text-slate-400" />
+                  <X className="size-4 text-white" />
                 </button>
               </div>
 
-              {/* 모달 본문 */}
+              {/* Tabs */}
+              <div className="flex border-b border-slate-100">
+                <button
+                  onClick={() => switchMode('login')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-semibold transition-colors ${authMode === 'login' ? 'text-primary border-b-2 border-primary' : 'text-slate-400'}`}
+                >
+                  <LogIn className="size-4" /> 로그인
+                </button>
+                <button
+                  onClick={() => switchMode('register')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-semibold transition-colors ${authMode === 'register' ? 'text-primary border-b-2 border-primary' : 'text-slate-400'}`}
+                >
+                  <UserPlus className="size-4" /> 회원가입
+                </button>
+              </div>
+
+              {/* Form */}
               <div className="px-5 py-4 space-y-3">
-                <div className="bg-slate-50 rounded-lg p-3.5 border border-slate-100">
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                    본 서비스는 <span className="text-primary font-bold">세브란스 NICU 입원 환아의 보호자</span>를 위한 전용 교육 자료입니다.
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm text-red-600">
+                    {error}
+                  </div>
+                )}
+
+                {/* 등록번호 입력 (로그인 & 회원가입 공통) */}
+                <div>
+                  <label className="text-sm font-bold text-slate-700 block mb-1">등록번호</label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={chartNumber}
+                      onChange={e => setChartNumber(e.target.value)}
+                      placeholder="아기 등록번호를 입력해 주세요"
+                      autoFocus
+                      className="w-full border border-slate-200 rounded-lg pl-10 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-300 bg-white"
+                      onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1.5">
+                    간호사에게 안내받은 등록번호를 입력하세요.
                   </p>
                 </div>
 
-                <ul className="space-y-2.5 px-1">
-                  <li className="flex gap-2.5 text-sm text-slate-600">
-                    <span className="text-red-500 font-bold mt-0.5">1.</span>
-                    <span>본 콘텐츠의 <strong className="text-slate-800">무단 복제, 배포, 공유를 금지</strong>합니다.</span>
-                  </li>
-                  <li className="flex gap-2.5 text-sm text-slate-600">
-                    <span className="text-red-500 font-bold mt-0.5">2.</span>
-                    <span>SNS, 블로그, 커뮤니티 등 외부 <strong className="text-slate-800">유출을 엄격히 금지</strong>합니다.</span>
-                  </li>
-                  <li className="flex gap-2.5 text-sm text-slate-600">
-                    <span className="text-red-500 font-bold mt-0.5">3.</span>
-                    <span>의료 정보는 참고용이며, <strong className="text-slate-800">의료진의 직접 상담을 우선</strong>해 주세요.</span>
-                  </li>
-                </ul>
-
-                <div className="bg-amber-50 rounded-lg p-3 border border-amber-200/60 flex items-start gap-2">
-                  <ShieldCheck className="size-4 text-amber-600 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-800 leading-relaxed">
-                    위반 시 법적 책임이 발생할 수 있으며, 서비스 이용이 제한될 수 있습니다.
-                  </p>
-                </div>
+                {/* 이름 입력 (회원가입만) */}
+                {authMode === 'register' && (
+                  <div>
+                    <label className="text-sm font-bold text-slate-700 block mb-1">이름</label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="이름을 입력해 주세요"
+                        className="w-full border border-slate-200 rounded-lg pl-10 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-300 bg-white"
+                        onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                      출생신고를 완료한 경우 <strong className="text-slate-500">아기 이름</strong>으로,{'\n'}
+                      아직 출생신고 전이라면 <strong className="text-slate-500">산모 이름</strong>으로 등록해 주세요.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* 모달 하단 버튼 */}
-              <div className="px-5 pb-4 pt-1 flex flex-col gap-2">
+              {/* Submit Button */}
+              <div className="px-5 pb-5 pt-1">
                 <button
-                  onClick={handleAccept}
-                  className="w-full h-11 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                  onClick={handleSubmit}
+                  disabled={
+                    authMode === 'login'
+                      ? !chartNumber.trim() || loading
+                      : !chartNumber.trim() || !name.trim() || loading
+                  }
+                  className="w-full h-11 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  동의하고 입장
-                </button>
-                <button
-                  onClick={handleDismissToday}
-                  className="w-full h-9 rounded-lg text-slate-400 text-xs font-medium hover:text-slate-500 hover:bg-slate-50 transition-colors"
-                >
-                  오늘 하루 안보기
+                  {loading ? '처리 중...' : authMode === 'login' ? '로그인' : '회원가입 후 입장'}
                 </button>
               </div>
             </motion.div>

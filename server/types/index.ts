@@ -2,9 +2,11 @@ import { Request } from 'express';
 
 export interface DbUser {
   id: number;
-  email: string;
+  email: string | null;
   password_hash: string;
   name: string;
+  phone: string | null;
+  pin_hash: string | null;
   role: 'parent' | 'admin';
   created_at: string;
 }
@@ -18,6 +20,18 @@ export interface DbPatient {
   birth_date: string;
   admission_date: string;
   discharge_date: string | null;
+  status: 'active' | 'discharged' | 'expired';
+  created_at: string;
+}
+
+export interface DbInvitationCode {
+  id: number;
+  code: string;
+  patient_id: number;
+  created_by: number;
+  expires_at: string;
+  used_by: number | null;
+  used_at: string | null;
   created_at: string;
 }
 
@@ -131,7 +145,7 @@ export interface DbAiChatMessage {
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
-    email: string;
+    email: string | null;
     name: string;
     role: 'parent' | 'admin';
   };

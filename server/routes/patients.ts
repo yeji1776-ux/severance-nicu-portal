@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import db from '../config/database.js';
+import { authenticateToken } from '../middleware/auth.js';
+import type { AuthenticatedRequest } from '../types/index.js';
 
 const router = Router();
 
@@ -80,6 +82,21 @@ router.post('/:id/vitals', (req, res) => {
   `).run(patientId, heart_rate, respiratory_rate, oxygen_saturation, temperature);
 
   res.status(201).json({ id: result.lastInsertRowid });
+});
+
+// PUT /api/patients/:id/nickname — 태명 설정
+router.put('/:id/nickname', authenticateToken, (req: AuthenticatedRequest, res) => {
+  const { nickname } = req.body;
+  const patientId = Number(req.params.id);
+
+  // 부모인 경우 본인 환자만 수정 가능
+  if (req.user!.role === 'parent') {
+    const link = db.prepare('SELECT 1 FROM parent_patient WHERE user_id = ? AND patient_id = ?').get(req.user!.id, patientId);
+    if (!link) return res.status(403).json({ error: '권한이 없습니다.' });
+  }
+
+  db.prepare('UPDATE patients SET nickname = ? WHERE id = ?').run(nickname?.trim() || null, patientId);
+  res.json({ success: true });
 });
 
 export default router;

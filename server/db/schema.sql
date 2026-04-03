@@ -1,9 +1,11 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
+  email TEXT UNIQUE,
+  password_hash TEXT NOT NULL DEFAULT '',
   name TEXT NOT NULL,
+  phone TEXT,
+  pin_hash TEXT,
   role TEXT NOT NULL CHECK(role IN ('parent', 'admin')),
   created_at TEXT DEFAULT (datetime('now'))
 );
@@ -18,6 +20,8 @@ CREATE TABLE IF NOT EXISTS patients (
   birth_date TEXT,
   admission_date TEXT,
   discharge_date TEXT,
+  nickname TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'discharged', 'expired')),
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -53,18 +57,24 @@ CREATE TABLE IF NOT EXISTS content_categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
-  sort_order INTEGER DEFAULT 0
+  icon_name TEXT NOT NULL DEFAULT 'FileText',
+  sort_order INTEGER DEFAULT 0,
+  is_journey_step INTEGER DEFAULT 0,
+  journey_step_order INTEGER DEFAULT NULL
 );
 
--- Content modules
+-- Content modules (cards)
 CREATE TABLE IF NOT EXISTS content_modules (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   category_id INTEGER NOT NULL REFERENCES content_categories(id),
   title TEXT NOT NULL,
-  subtitle TEXT,
-  type TEXT NOT NULL CHECK(type IN ('interactive', 'video', 'text')),
-  status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('published', 'review', 'draft')),
+  icon_name TEXT DEFAULT 'FileText',
   content TEXT,
+  sort_order INTEGER DEFAULT 0,
+  warnings TEXT DEFAULT NULL,
+  alerts TEXT DEFAULT NULL,
+  links TEXT DEFAULT NULL,
+  status TEXT NOT NULL DEFAULT 'published',
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -162,6 +172,18 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+-- Invitation codes
+CREATE TABLE IF NOT EXISTS invitation_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT UNIQUE NOT NULL,
+  patient_id INTEGER NOT NULL REFERENCES patients(id),
+  created_by INTEGER NOT NULL REFERENCES users(id),
+  expires_at TEXT NOT NULL,
+  used_by INTEGER REFERENCES users(id),
+  used_at TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_parent_patient_user ON parent_patient(user_id);
 CREATE INDEX IF NOT EXISTS idx_parent_patient_patient ON parent_patient(patient_id);
@@ -174,3 +196,13 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_chat_sessions_user ON ai_chat_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_session ON ai_chat_messages(session_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code);
+CREATE INDEX IF NOT EXISTS idx_invitation_codes_patient ON invitation_codes(patient_id);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+
+-- Content overrides (admin-editable card descriptions)
+CREATE TABLE IF NOT EXISTS content_overrides (
+  card_title TEXT PRIMARY KEY,
+  card_desc  TEXT NOT NULL,
+  updated_at TEXT DEFAULT (datetime('now'))
+);

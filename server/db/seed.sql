@@ -27,30 +27,14 @@ INSERT INTO patient_care_journey (patient_id, template_id, status) VALUES
   (1, 4, 'pending'),
   (1, 5, 'pending');
 
--- Content categories (from AdminEditor.tsx:77)
-INSERT INTO content_categories (name, slug, sort_order) VALUES
-  ('입원', 'admission', 1),
-  ('일상 케어', 'daily-care', 2),
-  ('수술', 'surgery', 3),
-  ('회복', 'recovery', 4),
-  ('퇴원', 'discharge', 5);
-
--- Content modules (from AdminEditor.tsx:19-22 + extra)
-INSERT INTO content_modules (category_id, title, subtitle, type, status) VALUES
-  (1, '입원 첫날 안내', '입원 절차 및 필수 사항', 'text', 'published'),
-  (1, 'NICU 시설 소개', '병동 안내 및 면회 규정', 'video', 'published'),
-  (2, '매일 모니터링 항목', '체온, 체중, 수유량 체크', 'text', 'published'),
-  (2, '캥거루 케어 가이드', '피부 접촉 방법 및 주의사항', 'video', 'published'),
-  (3, '수술 전 체크리스트', '수술 전 필수 단계', 'interactive', 'published'),
-  (3, '수술 후 통증 관리', '보호자 가이드', 'video', 'review'),
-  (3, '수술 동의서 안내', '주요 내용 설명', 'text', 'draft'),
-  (4, '회복 단계별 관리', '단계별 회복 가이드', 'text', 'published'),
-  (4, '재활 운동 가이드', '영아 물리치료 안내', 'video', 'review'),
-  (5, '퇴원 전 교육', '가정 내 관리 필수 교육', 'interactive', 'published'),
-  (5, '약물 관리', '퇴원 후 투약 가이드', 'text', 'published'),
-  (5, '응급상황 대응법', '가정 내 응급 대처', 'video', 'published'),
-  (5, '외래 진료 안내', '추적 관찰 일정', 'text', 'draft'),
-  (5, '발달 체크리스트', '월령별 발달 확인', 'interactive', 'review');
+-- Content categories
+INSERT INTO content_categories (name, slug, icon_name, sort_order, is_journey_step, journey_step_order) VALUES
+  ('입원', 'admission', 'Hospital', 1, 1, 1),
+  ('치료', 'treatment', 'HeartPulse', 2, 1, 2),
+  ('퇴원준비', 'discharge', 'Home', 3, 1, 3),
+  ('퇴원후', 'outpatient', 'ClipboardList', 4, 1, 4),
+  ('영상', 'video', 'QrCode', 5, 0, NULL),
+  ('Q&A', 'qna', 'MessageCircleQuestion', 6, 0, NULL);
 
 -- Discharge categories (from DischargeManual.tsx:20-62)
 INSERT INTO discharge_categories (title, subtitle, icon_name, is_emergency, sort_order) VALUES

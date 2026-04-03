@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Plus, ChevronRight, Baby, Calendar, Weight, X } from 'lucide-react';
+import { Plus, ChevronRight, Baby, Calendar, Weight, X, UserCheck, UserX, Copy, Check, TicketPlus } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { useApi } from '../../hooks/useApi';
 import { getAdminPatients } from '../../api/endpoints';
@@ -60,12 +60,25 @@ export default function PatientManagement() {
                   <span>{patient.birth_weight}g</span>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-primary/5">
+              <div className="mt-3 pt-3 border-t border-primary/5 flex items-center gap-2">
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                   patient.discharge_date ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
                 }`}>
                   {patient.discharge_date ? '퇴원' : '입원 중'}
                 </span>
+                {patient.guardian_name ? (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                    <UserCheck className="size-3" /> {patient.guardian_name}
+                  </span>
+                ) : patient.pending_invitation_code ? (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">
+                    코드 발급됨
+                  </span>
+                ) : (
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 flex items-center gap-1">
+                    <UserX className="size-3" /> 보호자 미연결
+                  </span>
+                )}
               </div>
             </motion.div>
           ))}
@@ -97,6 +110,10 @@ function PatientDetailModal({ patient, onClose, onUpdated }: { patient: any; onC
     () => api.get<any[]>(`/patients/${patient.id}/journey`),
     [patient.id]
   );
+  const [invitationCode, setInvitationCode] = useState<string | null>(patient.pending_invitation_code || null);
+  const [invitationExpiry, setInvitationExpiry] = useState<string | null>(patient.invitation_expires_at || null);
+  const [codeLoading, setCodeLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function handleJourneyUpdate(stepId: number, status: string) {
     try {
@@ -107,16 +124,31 @@ function PatientDetailModal({ patient, onClose, onUpdated }: { patient: any; onC
     }
   }
 
+  async function handleGenerateCode() {
+    setCodeLoading(true);
+    try {
+      const data = await api.post<{ code: string; expires_at: string }>(`/admin/patients/${patient.id}/invitation-code`, {});
+      setInvitationCode(data.code);
+      setInvitationExpiry(data.expires_at);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setCodeLoading(false);
+    }
+  }
+
+  async function handleCopyCode() {
+    if (!invitationCode) return;
+    const text = `[세브란스 NICU 보호자 포털]\n초대코드: ${invitationCode}\n아래 링크에서 가입해 주세요.\n${window.location.origin}`;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   const statusColors: Record<string, string> = {
     completed: 'bg-green-100 text-green-700',
     active: 'bg-blue-100 text-blue-700',
     pending: 'bg-slate-100 text-slate-500',
-  };
-
-  const statusLabels: Record<string, string> = {
-    completed: '완료',
-    active: '진행 중',
-    pending: '대기',
   };
 
   return (
@@ -134,6 +166,58 @@ function PatientDetailModal({ patient, onClose, onUpdated }: { patient: any; onC
           <div><span className="text-slate-500">출생일:</span> <strong>{patient.birth_date}</strong></div>
           <div><span className="text-slate-500">입원일:</span> <strong>{patient.admission_date}</strong></div>
           <div><span className="text-slate-500">퇴원일:</span> <strong>{patient.discharge_date || '-'}</strong></div>
+        </div>
+
+        {/* Guardian & Invitation Code Section */}
+        <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <h4 className="font-bold text-sm mb-3 flex items-center gap-2">
+            {patient.guardian_name ? <UserCheck className="size-4 text-emerald-600" /> : <UserX className="size-4 text-slate-400" />}
+            보호자 정보
+          </h4>
+
+          {patient.guardian_name ? (
+            <div className="text-sm space-y-1">
+              <p><span className="text-slate-500">이름:</span> <strong>{patient.guardian_name}</strong></p>
+              {patient.guardian_phone && (
+                <p><span className="text-slate-500">연락처:</span> <strong>{patient.guardian_phone}</strong></p>
+              )}
+              <p className="text-xs text-emerald-600 font-semibold mt-2">보호자 연결 완료</p>
+            </div>
+          ) : (
+            <div>
+              {invitationCode ? (
+                <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 border border-dashed border-primary/30 text-center">
+                    <p className="text-xs text-slate-500 mb-1">초대코드</p>
+                    <p className="text-2xl font-black tracking-[0.2em] text-primary">{invitationCode}</p>
+                    {invitationExpiry && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        만료: {new Date(invitationExpiry).toLocaleDateString('ko-KR')}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleCopyCode}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary/10 text-primary text-sm font-bold hover:bg-primary/20 transition-colors"
+                  >
+                    {copied ? <><Check className="size-4" /> 복사됨!</> : <><Copy className="size-4" /> 메시지 복사 (카톡/문자)</>}
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center space-y-3">
+                  <p className="text-sm text-slate-500">아직 보호자가 연결되지 않았습니다.</p>
+                  <button
+                    onClick={handleGenerateCode}
+                    disabled={codeLoading}
+                    className="flex items-center justify-center gap-2 mx-auto px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    <TicketPlus className="size-4" />
+                    {codeLoading ? '생성 중...' : '초대코드 생성'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <h4 className="font-bold text-sm mb-3">치료 여정</h4>
