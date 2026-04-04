@@ -44,6 +44,7 @@ interface Module {
   alerts: string | null;
   links: string | null;
   images: string | null;
+  tag: string | null;
   status: string;
   category_slug: string;
 }
@@ -80,7 +81,10 @@ function SortableCardItem({
           <Icon className="size-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-slate-800 truncate">{module.title}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-semibold text-sm text-slate-800 truncate">{module.title}</p>
+            {module.tag && <span className="shrink-0 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded">{module.tag}</span>}
+          </div>
           <p className="text-[11px] text-slate-400 truncate">{(module.content || '').slice(0, 60)}{(module.content || '').length > 60 ? '...' : ''}</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -202,6 +206,7 @@ export default function AdminEditor() {
       alerts: data.alerts?.length ? data.alerts : null,
       links: data.links?.length ? data.links : null,
       images: data.images?.length ? data.images : null,
+      tag: data.tag || null,
     };
     if (data.id) {
       await fetch(`/api/content/modules/${data.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
@@ -244,6 +249,7 @@ export default function AdminEditor() {
       alerts: mod.alerts ? JSON.parse(mod.alerts) : [],
       links: mod.links ? JSON.parse(mod.links) : [],
       images: mod.images ? JSON.parse(mod.images) : [],
+      tag: mod.tag || '',
     });
     setShowCardForm(true);
   }

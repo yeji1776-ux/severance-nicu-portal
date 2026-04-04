@@ -13,6 +13,7 @@ interface CardData {
   alerts: string[];
   links: { label: string; url: string }[];
   images: { url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[];
+  tag: string;
 }
 
 interface CardFormProps {
@@ -30,6 +31,7 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
   const [alerts, setAlerts] = useState<string[]>([]);
   const [links, setLinks] = useState<{ label: string; url: string }[]>([]);
   const [images, setImages] = useState<{ url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[]>([]);
+  const [tag, setTag] = useState('');
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
@@ -63,6 +65,7 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
       setAlerts(card.alerts || []);
       setLinks(card.links || []);
       setImages(card.images || []);
+      setTag(card.tag || '');
     }
   }, [card]);
 
@@ -78,6 +81,7 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
       alerts: alerts.filter(a => a.trim()),
       links: links.filter(l => l.label.trim() && l.url.trim()),
       images: images.filter(img => img.url.trim()),
+      tag: tag.trim(),
     });
   }
 
@@ -164,6 +168,18 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
                   className="flex-1 border rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="카드 제목"
                 />
+              </div>
+
+              {/* Tag */}
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">태그 (그룹 분류)</label>
+                <input
+                  value={tag}
+                  onChange={e => setTag(e.target.value)}
+                  className="w-full border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="예: 입원, 퇴원, 수술 (선택사항)"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">같은 태그의 카드끼리 묶어서 표시됩니다</p>
               </div>
 
               {/* Content */}

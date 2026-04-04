@@ -102,7 +102,7 @@ router.get('/modules', (req, res) => {
 
   let query = `
     SELECT m.id, m.title, m.icon_name, m.content, m.sort_order,
-           m.warnings, m.alerts, m.links, m.images, m.status,
+           m.warnings, m.alerts, m.links, m.images, m.tag, m.status,
            m.created_at, m.updated_at,
            c.name as category_name, c.slug as category_slug
     FROM content_modules m
@@ -148,14 +148,14 @@ router.get('/modules/:id', (req, res) => {
 
 // POST /api/content/modules — admin only
 router.post('/modules', authenticateToken, requireRole('admin'), (req: AuthenticatedRequest, res) => {
-  const { category_id, title, icon_name, content, sort_order, warnings, alerts, links, images } = req.body;
+  const { category_id, title, icon_name, content, sort_order, warnings, alerts, links, images, tag } = req.body;
   if (!category_id || !title) {
     return res.status(400).json({ error: '카테고리 ID와 제목이 필요합니다.' });
   }
   const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM content_modules WHERE category_id = ?').get(Number(category_id)) as any;
   const result = db.prepare(
-    `INSERT INTO content_modules (category_id, title, icon_name, content, sort_order, warnings, alerts, links, images, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')`
+    `INSERT INTO content_modules (category_id, title, icon_name, content, sort_order, warnings, alerts, links, images, tag, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')`
   ).run(
     Number(category_id),
     title,
@@ -165,18 +165,19 @@ router.post('/modules', authenticateToken, requireRole('admin'), (req: Authentic
     warnings ? (typeof warnings === 'string' ? warnings : JSON.stringify(warnings)) : null,
     alerts ? (typeof alerts === 'string' ? alerts : JSON.stringify(alerts)) : null,
     links ? (typeof links === 'string' ? links : JSON.stringify(links)) : null,
-    images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null
+    images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null,
+    tag || null
   );
   res.json({ id: result.lastInsertRowid, success: true });
 });
 
 // PUT /api/content/modules/:id — admin only
 router.put('/modules/:id', authenticateToken, requireRole('admin'), (req: AuthenticatedRequest, res) => {
-  const { title, icon_name, content, sort_order, warnings, alerts, links, images, status } = req.body;
+  const { title, icon_name, content, sort_order, warnings, alerts, links, images, tag, status } = req.body;
   const { id } = req.params;
   db.prepare(
     `UPDATE content_modules SET title = ?, icon_name = ?, content = ?, sort_order = ?,
-     warnings = ?, alerts = ?, links = ?, images = ?, status = ?, updated_at = datetime('now')
+     warnings = ?, alerts = ?, links = ?, images = ?, tag = ?, status = ?, updated_at = datetime('now')
      WHERE id = ?`
   ).run(
     title,
@@ -187,6 +188,7 @@ router.put('/modules/:id', authenticateToken, requireRole('admin'), (req: Authen
     alerts ? (typeof alerts === 'string' ? alerts : JSON.stringify(alerts)) : null,
     links ? (typeof links === 'string' ? links : JSON.stringify(links)) : null,
     images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null,
+    tag || null,
     status || 'published',
     Number(id)
   );

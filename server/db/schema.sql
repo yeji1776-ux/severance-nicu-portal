@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS content_modules (
   alerts TEXT DEFAULT NULL,
   links TEXT DEFAULT NULL,
   images TEXT DEFAULT NULL,
+  tag TEXT DEFAULT NULL,
   status TEXT NOT NULL DEFAULT 'published',
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))

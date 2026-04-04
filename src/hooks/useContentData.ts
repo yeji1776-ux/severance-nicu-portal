@@ -24,6 +24,7 @@ export interface ContentModule {
   alerts: string[] | null;
   links: { label: string; url: string }[] | null;
   images: { url: string; position: string; size: string; caption: string }[] | null;
+  tag: string | null;
   status: string;
   category_slug: string;
 }

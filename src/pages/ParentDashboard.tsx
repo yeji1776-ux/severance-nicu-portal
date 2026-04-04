@@ -2977,34 +2977,80 @@ function DynamicContentTab({ slug }: { slug: string }) {
   if (loading) return <div className="text-center py-8 text-slate-400 text-sm">불러오는 중...</div>;
   if (modules.length === 0) return <div className="text-center py-8 text-slate-400 text-sm">아직 콘텐츠가 없습니다.</div>;
 
+  // Group modules by tag
+  const tags = useMemo(() => {
+    const tagSet = new Set(modules.map(m => m.tag || ''));
+    return [...tagSet];
+  }, [modules]);
+  const hasMultipleTags = tags.length > 1 || (tags.length === 1 && tags[0] !== '');
+
   return (
     <>
-      {/* Card Grid */}
-      <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
-        {modules.map((mod) => {
-          const Icon = mod.icon;
+      {/* Card Grid — grouped by tag if tags exist */}
+      {hasMultipleTags ? (
+        tags.map(tagName => {
+          const tagModules = modules.filter(m => (m.tag || '') === tagName);
+          if (tagModules.length === 0) return null;
           return (
-            <button
-              key={mod.id}
-              onClick={() => setExpandedCard(expandedCard === mod.id ? null : mod.id)}
-              className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border transition-all ${
-                expandedCard === mod.id
-                  ? 'bg-primary/10 border-primary/30 shadow-sm'
-                  : 'bg-white border-slate-100 hover:border-primary/20 hover:shadow-sm'
-              }`}
-            >
-              <div className={`size-10 md:size-12 rounded-xl flex items-center justify-center ${
-                expandedCard === mod.id ? 'bg-primary/20' : 'bg-primary/10'
-              }`}>
-                <Icon className="size-5 md:size-6 text-primary" />
+            <div key={tagName || '_none'} className="mb-4">
+              {tagName && (
+                <p className={`${dCls(fl)} font-bold text-slate-500 mb-2 px-1`}>{tagName}</p>
+              )}
+              <div className="grid grid-cols-3 gap-2 md:gap-3">
+                {tagModules.map((mod) => {
+                  const Icon = mod.icon;
+                  return (
+                    <button
+                      key={mod.id}
+                      onClick={() => setExpandedCard(expandedCard === mod.id ? null : mod.id)}
+                      className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border transition-all ${
+                        expandedCard === mod.id
+                          ? 'bg-primary/10 border-primary/30 shadow-sm'
+                          : 'bg-white border-slate-100 hover:border-primary/20 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className={`size-10 md:size-12 rounded-xl flex items-center justify-center ${
+                        expandedCard === mod.id ? 'bg-primary/20' : 'bg-primary/10'
+                      }`}>
+                        <Icon className="size-5 md:size-6 text-primary" />
+                      </div>
+                      <span className={`${dCls(fl)} font-semibold text-center leading-tight text-slate-700`}>
+                        {mod.title}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              <span className={`${dCls(fl)} font-semibold text-center leading-tight text-slate-700`}>
-                {mod.title}
-              </span>
-            </button>
+            </div>
           );
-        })}
-      </div>
+        })
+      ) : (
+        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
+          {modules.map((mod) => {
+            const Icon = mod.icon;
+            return (
+              <button
+                key={mod.id}
+                onClick={() => setExpandedCard(expandedCard === mod.id ? null : mod.id)}
+                className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border transition-all ${
+                  expandedCard === mod.id
+                    ? 'bg-primary/10 border-primary/30 shadow-sm'
+                    : 'bg-white border-slate-100 hover:border-primary/20 hover:shadow-sm'
+                }`}
+              >
+                <div className={`size-10 md:size-12 rounded-xl flex items-center justify-center ${
+                  expandedCard === mod.id ? 'bg-primary/20' : 'bg-primary/10'
+                }`}>
+                  <Icon className="size-5 md:size-6 text-primary" />
+                </div>
+                <span className={`${dCls(fl)} font-semibold text-center leading-tight text-slate-700`}>
+                  {mod.title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Expanded Card Detail */}
       {expandedCard && (() => {
