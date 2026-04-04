@@ -53,7 +53,7 @@ router.get('/sessions/:id/messages', (req: AuthenticatedRequest, res: Response) 
 
 // POST /api/ai/chat
 router.post('/chat', chatLimiter, async (req: AuthenticatedRequest, res: Response) => {
-  const { sessionId, message, department } = req.body;
+  const { sessionId, message } = req.body;
 
   if (!message?.trim()) {
     return res.status(400).json({ error: '메시지를 입력해 주세요.' });
@@ -88,7 +88,7 @@ router.post('/chat', chatLimiter, async (req: AuthenticatedRequest, res: Respons
   ).all(sessionId) as { role: string; content: string }[];
 
   // Generate AI response
-  const aiResponse = await generateResponse(message, history.slice(0, -1), department);
+  const aiResponse = await generateResponse(message, history.slice(0, -1));
 
   // Save AI response
   db.prepare(

@@ -61,7 +61,7 @@ export default function LoginPage() {
         </button>
         <div className="flex items-center gap-2 text-white">
           <HeartPulse className="size-5 md:size-6" />
-          <span className="font-bold text-sm md:text-base">세브란스 병원</span>
+          <span className="font-bold text-sm md:text-base">세브란스 NICU</span>
         </div>
       </header>
 
@@ -129,9 +129,6 @@ export default function LoginPage() {
               <p className="text-[10px] text-slate-400 font-semibold mb-1.5">테스트 계정</p>
               <div className="space-y-1 text-[11px] text-slate-500">
                 <p>NICU: <span className="font-mono text-slate-600">admin-nicu@severance.com</span></p>
-                <p>정형외과: <span className="font-mono text-slate-600">admin-ortho@severance.com</span></p>
-                <p>CCU: <span className="font-mono text-slate-600">admin-ccu@severance.com</span></p>
-                <p>소아응급: <span className="font-mono text-slate-600">admin-er@severance.com</span></p>
                 <p className="text-slate-400 mt-1">비밀번호: password123</p>
               </div>
             </div>

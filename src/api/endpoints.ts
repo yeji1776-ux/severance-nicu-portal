@@ -5,15 +5,13 @@ export const getDepartments = () => api.get<any[]>('/departments');
 export const getDepartment = (slug: string) => api.get<any>(`/departments/${slug}`);
 
 // Content
-export const getContentCategories = (department?: string) => {
-  const params = department ? `?department=${department}` : '';
-  return api.get<any[]>(`/content/categories${params}`);
+export const getContentCategories = () => {
+  return api.get<any[]>('/content/categories');
 };
-export const getContentModules = (params?: { category?: string; status?: string; department?: string }) => {
+export const getContentModules = (params?: { category?: string; status?: string }) => {
   const qs = new URLSearchParams();
   if (params?.category) qs.set('category', params.category);
   if (params?.status) qs.set('status', params.status);
-  if (params?.department) qs.set('department', params.department);
   const query = qs.toString();
   return api.get<any[]>(`/content/modules${query ? `?${query}` : ''}`);
 };
@@ -24,9 +22,8 @@ export const getNotices = (limit?: number) =>
   api.get<any[]>(`/notices${limit ? `?limit=${limit}` : ''}`);
 
 // Discharge
-export const getDischargeCategories = (department?: string) => {
-  const params = department ? `?department=${department}` : '';
-  return api.get<any[]>(`/discharge/categories${params}`);
+export const getDischargeCategories = () => {
+  return api.get<any[]>('/discharge/categories');
 };
 
 // Patients
@@ -46,8 +43,8 @@ export const markNotificationRead = (id: number) => api.put<any>(`/notifications
 // AI Chat
 export const getChatSessions = () => api.get<any[]>('/ai/sessions');
 export const createChatSession = () => api.post<any>('/ai/sessions', {});
-export const sendChatMessage = (sessionId: number, message: string, department?: string) =>
-  api.post<any>('/ai/chat', { sessionId, message, department });
+export const sendChatMessage = (sessionId: number, message: string) =>
+  api.post<any>('/ai/chat', { sessionId, message });
 
 // Admin
 export const getContentStats = () => api.get<any>('/admin/content/stats');

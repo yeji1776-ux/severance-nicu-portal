@@ -42,7 +42,7 @@ import {
   CheckCircle,
   Bookmark,
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useContentCategories, useContentModules, type ContentModule } from '../hooks/useContentData';
 import { getIcon } from '../lib/iconMap';
@@ -771,17 +771,8 @@ export { admissionContent, visitContent, treatmentContent, diseaseGroups, discha
 // ─── 메인 컴포넌트 ──────────────────────────
 export default function ParentDashboard() {
   const navigate = useNavigate();
-  const { deptSlug } = useParams<{ deptSlug: string }>();
   const { logout, user, patient, setNickname } = useAuth();
 
-  const deptDisplayName: Record<string, string> = {
-    nicu: 'NICU',
-    'ortho-ward': '정형외과',
-    ccu: 'CCU',
-    'ped-er': '소아응급',
-  };
-  const currentDeptName = deptDisplayName[deptSlug || 'nicu'] || deptSlug || 'NICU';
-  const isNicu = !deptSlug || deptSlug === 'nicu';
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
 
@@ -790,15 +781,15 @@ export default function ParentDashboard() {
     if (patient?.status === 'expired') {
       navigate('/');
     } else if (patient?.status === 'discharged') {
-      navigate(`/dept/${deptSlug}/manual`);
+      navigate('/manual');
     }
   }, [patient?.status, navigate]);
 
   // user-specific storage prefix
-  const storagePrefix = user?.name ? `${deptSlug || 'nicu'}-data-${user.name}-` : `${deptSlug || 'nicu'}-`;
+  const storagePrefix = user?.name ? `nicu-data-${user.name}-` : `nicu-`;
 
   // Dynamic categories from DB
-  const { categories: dbCategories, journeySteps, loading: catLoading } = useContentCategories(deptSlug);
+  const { categories: dbCategories, journeySteps, loading: catLoading } = useContentCategories();
 
   const [activeTab, setActiveTab] = useState<TabId>('admission');
 
@@ -883,10 +874,10 @@ export default function ParentDashboard() {
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-primary/10 bg-white/95 backdrop-blur-md px-4 md:px-6 lg:px-8 py-3 md:py-4">
         <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => setActiveTab('admission')}>
           <div className="size-9 md:size-11 rounded-lg shrink-0 flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#1b304e' }}>
-            <img src="/fabicon.png" alt={`Severance ${currentDeptName}`} className="size-8 md:size-10 object-contain" />
+            <img src="/fabicon.png" alt="Severance NICU" className="size-8 md:size-10 object-contain" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-primary text-base md:text-lg lg:text-xl font-bold leading-tight tracking-tight truncate">Severance {currentDeptName}</h1>
+            <h1 className="text-primary text-base md:text-lg lg:text-xl font-bold leading-tight tracking-tight truncate">Severance NICU</h1>
             <p className="text-slate-500 text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-wider">보호자 포털</p>
           </div>
         </div>
@@ -917,21 +908,15 @@ export default function ParentDashboard() {
       <div className="bg-primary px-4 md:px-6 lg:px-8 py-4 md:py-6 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-white text-lg md:text-xl lg:text-2xl font-bold">보호자 가이드</h2>
-          {isNicu ? (
-            <button
-              onClick={() => { setNicknameInput(patient?.nickname || ''); setShowNicknameModal(true); }}
-              className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5 hover:text-white/90 transition-colors text-left"
-            >
-              {patient?.nickname
-                ? <>{patient.name} (<span className="text-white/90 font-semibold">{patient.nickname}</span>) 아기의 보호자님</>
-                : <>입원부터 퇴원까지, 우리 아이를 위한 안내 <span className="underline underline-offset-2 decoration-dotted">태명 등록</span></>
-              }
-            </button>
-          ) : (
-            <p className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5">
-              {currentDeptName} 입원·치료·퇴원 안내
-            </p>
-          )}
+          <button
+            onClick={() => { setNicknameInput(patient?.nickname || ''); setShowNicknameModal(true); }}
+            className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5 hover:text-white/90 transition-colors text-left"
+          >
+            {patient?.nickname
+              ? <>{patient.name} (<span className="text-white/90 font-semibold">{patient.nickname}</span>) 아기의 보호자님</>
+              : <>입원부터 퇴원까지, 우리 아이를 위한 안내 <span className="underline underline-offset-2 decoration-dotted">태명 등록</span></>
+            }
+          </button>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {/* 북마크 */}
@@ -946,8 +931,8 @@ export default function ParentDashboard() {
               </span>
             )}
           </button>
-          {/* 교정주수 — NICU 전용 */}
-          {isNicu && (
+          {/* 교정주수 */}
+          {(
             <button
               onClick={() => setShowCorrectedCalc(v => !v)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
@@ -972,7 +957,7 @@ export default function ParentDashboard() {
       {/* ═══ 여정 프로그레스 바 ═══ */}
       <div className="bg-white px-4 md:px-6 lg:px-8 py-3 md:py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <p className="text-xs md:text-sm lg:text-base font-bold text-slate-500 shrink-0">{isNicu ? '우리 아이의 여정' : '치료 여정'}</p>
+          <p className="text-xs md:text-sm lg:text-base font-bold text-slate-500 shrink-0">우리 아이의 여정</p>
           <div className="flex items-center flex-1 relative">
             <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200" />
             <div
@@ -997,8 +982,8 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* ═══ 교정주수 계산기 (토글) — NICU 전용 ═══ */}
-      {isNicu && <FontSizeContext.Provider value={fontLevel}>
+      {/* ═══ 교정주수 계산기 (토글) ═══ */}
+      {<FontSizeContext.Provider value={fontLevel}>
         <div className={`grid transition-all duration-300 ease-in-out ${showCorrectedCalc ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
             <div className="px-4 md:px-6 lg:px-8 py-4 bg-indigo-50/60 border-b border-indigo-100">
@@ -1043,19 +1028,13 @@ export default function ParentDashboard() {
       <BookmarkContext.Provider value={bookmarkCtxValue}>
         <FontSizeContext.Provider value={fontLevel}>
           <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
-            {deptSlug === 'nicu' || !deptSlug ? (
-              <>
-                {activeTab === 'admission' && <AdmissionTab user={user} />}
-                {activeTab === 'visit' && <VisitTab />}
-                {activeTab === 'treatment' && <TreatmentTab />}
-                {activeTab === 'discharge' && <DischargeTab />}
-                {activeTab === 'outpatient' && <OutpatientTab />}
-                {activeTab === 'video' && <QrTab />}
-                {!KNOWN_TABS.has(activeTab) && activeTab !== 'visit' && <DynamicContentTab slug={activeTab} />}
-              </>
-            ) : (
-              <DynamicContentTab slug={activeTab} />
-            )}
+            {activeTab === 'admission' && <AdmissionTab user={user} />}
+            {activeTab === 'visit' && <VisitTab />}
+            {activeTab === 'treatment' && <TreatmentTab />}
+            {activeTab === 'discharge' && <DischargeTab />}
+            {activeTab === 'outpatient' && <OutpatientTab />}
+            {activeTab === 'video' && <QrTab />}
+            {!KNOWN_TABS.has(activeTab) && activeTab !== 'visit' && <DynamicContentTab slug={activeTab} />}
           </div>
         </FontSizeContext.Provider>
       </BookmarkContext.Provider>
@@ -1068,7 +1047,7 @@ export default function ParentDashboard() {
           <Phone className="size-5 text-primary mt-0.5 shrink-0" />
           <div>
             <p className="text-xs text-slate-500">문의 사항이 있으신가요?</p>
-            <p className="text-sm font-bold text-primary">{currentDeptName}: 담당 병동으로 연락해 주세요</p>
+            <p className="text-sm font-bold text-primary">신생아 중환자실: 02-2228-0000</p>
             <p className="text-xs text-slate-400 mt-1">평일 09:00~17:00 / 응급 시 24시간</p>
           </div>
         </div>
@@ -1096,8 +1075,8 @@ export default function ParentDashboard() {
         </div>
       </nav>
 
-      {/* ═══ 태명 설정 모달 — NICU 전용 ═══ */}
-      {isNicu && showNicknameModal && (
+      {/* ═══ 태명 설정 모달 ═══ */}
+      {showNicknameModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6" onClick={() => setShowNicknameModal(false)}>
           <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-5" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold text-base text-slate-800 mb-1">태명 등록</h3>
@@ -2970,8 +2949,7 @@ function AdmissionConfirmation({ user }: { user: { id: number; name: string; ema
 // ─── 동적 콘텐츠 탭 (관리자가 추가한 카테고리) ──────
 function DynamicContentTab({ slug }: { slug: string }) {
   const fl = useContext(FontSizeContext);
-  const { deptSlug } = useParams<{ deptSlug: string }>();
-  const { modules, loading } = useContentModules(slug, deptSlug);
+  const { modules, loading } = useContentModules(slug);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
   if (loading) return <div className="text-center py-8 text-slate-400 text-sm">불러오는 중...</div>;

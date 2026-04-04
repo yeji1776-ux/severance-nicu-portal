@@ -1,27 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { HeartPulse, X, Settings, UserPlus, LogIn, Hash, User, Hospital } from 'lucide-react';
+import { Baby, X, Settings, UserPlus, LogIn, Hash, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getDepartments } from '../api/endpoints';
-import { getIcon } from '../lib/iconMap';
-import type { Department } from '../types';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { user, registerParent, loginParent, setCurrentDepartment } = useAuth();
+  const { user, registerParent, loginParent } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [chartNumber, setChartNumber] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
-
-  useEffect(() => {
-    getDepartments().then(setDepartments).catch(console.error);
-  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -33,10 +24,7 @@ export default function LandingPage() {
     try {
       await loginParent(chartNumber.trim());
       setShowAuthModal(false);
-      if (selectedDept) {
-        setCurrentDepartment(selectedDept.slug);
-      }
-      navigate(selectedDept ? `/dept/${selectedDept.slug}/dashboard` : '/dashboard');
+      navigate('/dashboard');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -54,10 +42,7 @@ export default function LandingPage() {
     try {
       await registerParent(chartNumber.trim(), name.trim());
       setShowAuthModal(false);
-      if (selectedDept) {
-        setCurrentDepartment(selectedDept.slug);
-      }
-      navigate(selectedDept ? `/dept/${selectedDept.slug}/dashboard` : '/dashboard');
+      navigate('/dashboard');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -90,8 +75,8 @@ export default function LandingPage() {
 
       <header className="flex items-center justify-between border-b border-white/10 px-4 md:px-6 py-3 md:py-4 relative z-10">
         <div className="flex items-center gap-2 md:gap-3 text-white">
-          <HeartPulse className="size-6 md:size-8 text-white fill-white" />
-          <h2 className="text-white text-base md:text-lg font-bold leading-tight tracking-tight">세브란스 병원</h2>
+          <Baby className="size-6 md:size-8 text-white" />
+          <h2 className="text-white text-base md:text-lg font-bold leading-tight tracking-tight">세브란스 NICU</h2>
         </div>
         <button
           onClick={() => navigate('/login?role=staff')}
@@ -109,45 +94,30 @@ export default function LandingPage() {
           className="max-w-[800px] w-full flex flex-col items-center text-center py-6"
         >
           <div className="mb-6 md:mb-8 p-4 md:p-6 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
-            <Hospital className="size-10 md:size-16 text-white" strokeWidth={1} />
+            <Baby className="size-10 md:size-16 text-white" strokeWidth={1} />
           </div>
 
           <h1 className="text-white tracking-tight text-4xl md:text-7xl font-bold leading-tight pb-3 md:pb-4">
-            세브란스 보호자 포털
+            세브란스 NICU
           </h1>
           <p className="text-blue-100/80 text-sm md:text-xl font-medium max-w-lg leading-relaxed mb-8 md:mb-12 px-2">
-            진료과를 선택해 주세요
+            신생아 집중치료실 보호자 포털
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full max-w-2xl px-4">
-            {departments.map(dept => {
-              const IconComponent = getIcon(dept.icon_name);
-              return (
-                <motion.button
-                  key={dept.id}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    if (user && user.role === 'parent') {
-                      setCurrentDepartment(dept.slug);
-                      navigate(`/dept/${dept.slug}/dashboard`);
-                      return;
-                    }
-                    setSelectedDept(dept);
-                    setShowAuthModal(true);
-                  }}
-                  className="flex flex-col items-center gap-3 p-5 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all text-white text-center cursor-pointer"
-                  style={{ borderColor: `${dept.theme_color}40` }}
-                >
-                  <div className="p-3 rounded-full" style={{ backgroundColor: `${dept.theme_color}20` }}>
-                    <IconComponent className="size-7 md:size-8" style={{ color: dept.theme_color }} />
-                  </div>
-                  <h3 className="text-base md:text-lg font-bold">{dept.name}</h3>
-                  <p className="text-xs md:text-sm text-white/70 leading-relaxed">{dept.description}</p>
-                </motion.button>
-              );
-            })}
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => {
+              if (user && user.role === 'parent') {
+                navigate('/dashboard');
+                return;
+              }
+              setShowAuthModal(true);
+            }}
+            className="px-10 py-4 rounded-2xl bg-white text-primary text-lg font-bold shadow-2xl hover:bg-white/95 transition-all cursor-pointer"
+          >
+            입장하기
+          </motion.button>
         </motion.div>
       </main>
 
@@ -157,7 +127,7 @@ export default function LandingPage() {
           <div className="w-10 md:w-16 h-1 bg-white/40 rounded-full"></div>
           <div className="w-10 md:w-16 h-1 bg-white/20 rounded-full"></div>
         </div>
-        <p className="text-white/40 text-[11px] font-medium tracking-widest uppercase">Made by SMART HOSPITAL TEAM</p>
+        <p className="text-white/40 text-[11px] font-medium tracking-widest uppercase">Made by SMART NICU TEAM</p>
       </footer>
 
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
@@ -182,9 +152,9 @@ export default function LandingPage() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="px-5 py-4 flex items-center justify-between" style={{ backgroundColor: selectedDept?.theme_color || '#004085' }}>
+              <div className="px-5 py-4 flex items-center justify-between bg-[#004085]">
                 <h3 className="text-base font-bold text-white">
-                  {selectedDept?.name} {authMode === 'login' ? '로그인' : '회원가입'}
+                  NICU {authMode === 'login' ? '로그인' : '회원가입'}
                 </h3>
                 <button
                   onClick={() => setShowAuthModal(false)}
@@ -227,7 +197,7 @@ export default function LandingPage() {
                       type="text"
                       value={chartNumber}
                       onChange={e => setChartNumber(e.target.value)}
-                      placeholder={selectedDept?.slug === 'nicu' ? '아기 등록번호를 입력해 주세요' : '환자 등록번호를 입력해 주세요'}
+                      placeholder="아기 등록번호를 입력해 주세요"
                       autoFocus
                       className="w-full border border-slate-200 rounded-lg pl-10 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-300 bg-white"
                       onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}

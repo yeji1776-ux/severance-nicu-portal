@@ -20,8 +20,6 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   patient: PatientInfo | null;
-  currentDepartment: string | null;
-  setCurrentDepartment: (slug: string) => void;
   login: (email: string, password: string) => Promise<User>;
   registerParent: (chartNumber: string, name: string) => Promise<User>;
   loginParent: (chartNumber: string) => Promise<User>;
@@ -36,14 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [patient, setPatient] = useState<PatientInfo | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
-  const [currentDepartment, setCurrentDepartmentState] = useState<string | null>(
-    () => localStorage.getItem('currentDepartment')
-  );
-
-  function setCurrentDepartment(slug: string) {
-    setCurrentDepartmentState(slug);
-    localStorage.setItem('currentDepartment', slug);
-  }
 
   useEffect(() => {
     if (token) {
@@ -160,16 +150,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
-    localStorage.removeItem('currentDepartment');
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
     setPatient(null);
-    setCurrentDepartmentState(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, patient, currentDepartment, setCurrentDepartment, login, registerParent, loginParent, setNickname, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, patient, login, registerParent, loginParent, setNickname, logout }}>
       {children}
     </AuthContext.Provider>
   );
