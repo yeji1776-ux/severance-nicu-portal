@@ -20,12 +20,17 @@ function generateInvitationCode(): string {
 router.use(authenticateToken, requireRole('admin'));
 
 // GET /api/admin/content/stats
-router.get('/content/stats', (_req, res) => {
-  const totalModules = (db.prepare('SELECT COUNT(*) as count FROM content_modules').get() as any).count;
-  const published = (db.prepare("SELECT COUNT(*) as count FROM content_modules WHERE status = 'published'").get() as any).count;
-  const review = (db.prepare("SELECT COUNT(*) as count FROM content_modules WHERE status = 'review'").get() as any).count;
-  const draft = (db.prepare("SELECT COUNT(*) as count FROM content_modules WHERE status = 'draft'").get() as any).count;
-  const lastUpdate = db.prepare('SELECT updated_at FROM content_modules ORDER BY updated_at DESC LIMIT 1').get() as any;
+router.get('/content/stats', (req: AuthenticatedRequest, res: Response) => {
+  const deptId = req.user!.department_id;
+  const joinClause = deptId ? ' JOIN content_categories c ON m.category_id = c.id WHERE c.department_id = ?' : '';
+  const deptFilter = deptId ? ' AND c.department_id = ?' : '';
+  const p = deptId ? [deptId] : [];
+
+  const totalModules = (db.prepare(`SELECT COUNT(*) as count FROM content_modules m${joinClause}`).get(...p) as any).count;
+  const published = (db.prepare(`SELECT COUNT(*) as count FROM content_modules m JOIN content_categories c ON m.category_id = c.id WHERE m.status = 'published'${deptFilter}`).get(...p) as any).count;
+  const review = (db.prepare(`SELECT COUNT(*) as count FROM content_modules m JOIN content_categories c ON m.category_id = c.id WHERE m.status = 'review'${deptFilter}`).get(...p) as any).count;
+  const draft = (db.prepare(`SELECT COUNT(*) as count FROM content_modules m JOIN content_categories c ON m.category_id = c.id WHERE m.status = 'draft'${deptFilter}`).get(...p) as any).count;
+  const lastUpdate = db.prepare(`SELECT m.updated_at FROM content_modules m${deptId ? ' JOIN content_categories c ON m.category_id = c.id WHERE c.department_id = ?' : ''} ORDER BY m.updated_at DESC LIMIT 1`).get(...p) as any;
 
   res.json({
     totalModules,
@@ -114,7 +119,8 @@ router.delete('/content/modules/:id', (req: AuthenticatedRequest, res: Response)
 // Notices CRUD
 router.post('/notices', (req: AuthenticatedRequest, res: Response) => {
   const { title, description, date } = req.body;
-  const result = db.prepare('INSERT INTO notices (title, description, date) VALUES (?, ?, ?)').run(title, description, date || new Date().toISOString().slice(0, 10));
+  const deptId = req.user!.department_id || 1;
+  const result = db.prepare('INSERT INTO notices (title, description, date, department_id) VALUES (?, ?, ?, ?)').run(title, description, date || new Date().toISOString().slice(0, 10), deptId);
   res.status(201).json({ id: result.lastInsertRowid });
 });
 
@@ -130,8 +136,9 @@ router.delete('/notices/:id', (_req, res) => {
 });
 
 // Patient management
-router.get('/patients', (_req, res) => {
-  const patients = db.prepare(`
+router.get('/patients', (req: AuthenticatedRequest, res: Response) => {
+  const deptId = req.user!.department_id;
+  let query = `
     SELECT p.*,
       u.name as guardian_name,
       u.phone as guardian_phone,
@@ -142,8 +149,14 @@ router.get('/patients', (_req, res) => {
     LEFT JOIN parent_patient pp ON pp.patient_id = p.id
     LEFT JOIN users u ON u.id = pp.user_id
     LEFT JOIN invitation_codes ic ON ic.patient_id = p.id AND ic.used_by IS NULL AND ic.expires_at > datetime('now')
-    ORDER BY p.created_at DESC
-  `).all();
+  `;
+  const params: any[] = [];
+  if (deptId) {
+    query += ' WHERE p.department_id = ?';
+    params.push(deptId);
+  }
+  query += ' ORDER BY p.created_at DESC';
+  const patients = db.prepare(query).all(...params);
   res.json(patients);
 });
 
@@ -248,7 +261,18 @@ router.get('/notifications/history', (_req, res) => {
 router.post('/notifications/broadcast', (req: AuthenticatedRequest, res: Response) => {
   const { title, message, type } = req.body;
 
-  const users = db.prepare('SELECT id FROM users').all() as any[];
+  const deptId = req.user!.department_id;
+  let users: any[];
+  if (deptId) {
+    users = db.prepare(`
+      SELECT DISTINCT u.id FROM users u
+      JOIN parent_patient pp ON pp.user_id = u.id
+      JOIN patients p ON p.id = pp.patient_id
+      WHERE p.department_id = ?
+    `).all(deptId);
+  } else {
+    users = db.prepare('SELECT id FROM users').all();
+  }
   const stmt = db.prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)');
 
   const insertMany = db.transaction((users: any[]) => {

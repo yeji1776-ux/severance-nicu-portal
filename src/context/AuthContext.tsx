@@ -5,6 +5,7 @@ interface User {
   email?: string | null;
   name: string;
   role: 'parent' | 'admin';
+  department_id?: number | null;
 }
 
 interface PatientInfo {
@@ -61,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setUser({ id: data.id, email: data.email, name: data.name, role: data.role });
+        setUser({ id: data.id, email: data.email, name: data.name, role: data.role, department_id: data.department_id });
         if (data.patients?.length > 0) {
           setPatient({ id: data.patients[0].id, name: data.patients[0].name, nickname: data.patients[0].nickname, status: data.patients[0].status });
         }
@@ -93,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', data.token);
     setToken(data.token);
 
-    const userData: User = { id: data.user.id, email: data.user.email, name: data.user.name, role: data.user.role };
+    const userData: User = { id: data.user.id, email: data.user.email, name: data.user.name, role: data.user.role, department_id: data.user.department_id };
     setUser(userData);
     return userData;
   }
