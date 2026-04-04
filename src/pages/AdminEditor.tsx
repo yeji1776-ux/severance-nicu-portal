@@ -408,6 +408,7 @@ export default function AdminEditor() {
         <CardForm
           card={editingCard}
           categoryId={activeTab}
+          existingTags={[...new Set(modules.map(m => m.tag).filter((t): t is string => !!t))]}
           onSave={handleSaveCard}
           onClose={() => { setShowCardForm(false); setEditingCard(null); }}
         />

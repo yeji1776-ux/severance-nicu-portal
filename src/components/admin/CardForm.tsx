@@ -19,11 +19,12 @@ interface CardData {
 interface CardFormProps {
   card: CardData | null;
   categoryId: number;
+  existingTags: string[];
   onSave: (data: CardData) => void;
   onClose: () => void;
 }
 
-export default function CardForm({ card, categoryId, onSave, onClose }: CardFormProps) {
+export default function CardForm({ card, categoryId, existingTags, onSave, onClose }: CardFormProps) {
   const [title, setTitle] = useState('');
   const [iconName, setIconName] = useState('FileText');
   const [content, setContent] = useState('');
@@ -32,6 +33,8 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
   const [links, setLinks] = useState<{ label: string; url: string }[]>([]);
   const [images, setImages] = useState<{ url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[]>([]);
   const [tag, setTag] = useState('');
+  const [showNewTag, setShowNewTag] = useState(false);
+  const [newTagInput, setNewTagInput] = useState('');
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
@@ -172,14 +175,66 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
 
               {/* Tag */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 mb-1 block">태그 (그룹 분류)</label>
-                <input
-                  value={tag}
-                  onChange={e => setTag(e.target.value)}
-                  className="w-full border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="예: 입원, 퇴원, 수술 (선택사항)"
-                />
-                <p className="text-[10px] text-slate-400 mt-1">같은 태그의 카드끼리 묶어서 표시됩니다</p>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">그룹 분류</label>
+                {showNewTag ? (
+                  <div className="flex gap-2">
+                    <input
+                      value={newTagInput}
+                      onChange={e => setNewTagInput(e.target.value)}
+                      className="flex-1 border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="새 그룹 이름 입력"
+                      autoFocus
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && newTagInput.trim()) {
+                          setTag(newTagInput.trim());
+                          setShowNewTag(false);
+                          setNewTagInput('');
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newTagInput.trim()) {
+                          setTag(newTagInput.trim());
+                        }
+                        setShowNewTag(false);
+                        setNewTagInput('');
+                      }}
+                      className="px-3 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary/90"
+                    >
+                      추가
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowNewTag(false); setNewTagInput(''); }}
+                      className="px-3 py-2 border text-slate-500 text-xs rounded-xl hover:bg-slate-50"
+                    >
+                      취소
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <select
+                      value={tag}
+                      onChange={e => setTag(e.target.value)}
+                      className="flex-1 border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
+                    >
+                      <option value="">그룹 없음</option>
+                      {existingTags.map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewTag(true)}
+                      className="shrink-0 px-3 py-2 bg-primary/10 text-primary text-xs font-bold rounded-xl hover:bg-primary/20"
+                    >
+                      + 새 그룹
+                    </button>
+                  </div>
+                )}
+                <p className="text-[10px] text-slate-400 mt-1">같은 그룹의 카드끼리 묶어서 표시됩니다</p>
               </div>
 
               {/* Content */}
