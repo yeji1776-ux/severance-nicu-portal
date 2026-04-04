@@ -65,8 +65,8 @@ const tCls = (l: number) => (['text-sm md:text-base lg:text-lg', 'text-base md:t
 // ─── 타입 ───────────────────────────────────
 type TabId = string;
 
-// Known tab slugs that have specialized renderers
-const KNOWN_TABS = new Set(['admission', 'treatment', 'discharge', 'outpatient', 'video', 'qna']);
+// Known tab slugs that have specialized renderers (NICU only)
+const KNOWN_TABS = new Set(['admission', 'treatment', 'discharge', 'outpatient', 'video']);
 
 // ─── 탭별 콘텐츠 데이터 ─────────────────────
 const admissionContent = {
@@ -1051,7 +1051,6 @@ export default function ParentDashboard() {
                 {activeTab === 'discharge' && <DischargeTab />}
                 {activeTab === 'outpatient' && <OutpatientTab />}
                 {activeTab === 'video' && <QrTab />}
-                {activeTab === 'qna' && <QnaTab />}
                 {!KNOWN_TABS.has(activeTab) && activeTab !== 'visit' && <DynamicContentTab slug={activeTab} />}
               </>
             ) : (
