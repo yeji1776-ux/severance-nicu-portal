@@ -23,6 +23,7 @@ export interface ContentModule {
   warnings: string[] | null;
   alerts: string[] | null;
   links: { label: string; url: string }[] | null;
+  images: { url: string; position: string; size: string; caption: string }[] | null;
   status: string;
   category_slug: string;
 }
@@ -74,6 +75,7 @@ export function useContentModules(categorySlug: string | null, department?: stri
           warnings: m.warnings ? JSON.parse(m.warnings) : null,
           alerts: m.alerts ? JSON.parse(m.alerts) : null,
           links: m.links ? JSON.parse(m.links) : null,
+          images: m.images ? JSON.parse(m.images) : null,
         }))
       );
     } catch {

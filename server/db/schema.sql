@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS content_modules (
   warnings TEXT DEFAULT NULL,
   alerts TEXT DEFAULT NULL,
   links TEXT DEFAULT NULL,
+  images TEXT DEFAULT NULL,
   status TEXT NOT NULL DEFAULT 'published',
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))

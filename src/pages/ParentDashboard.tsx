@@ -3020,9 +3020,34 @@ function DynamicContentTab({ slug }: { slug: string }) {
               <h3 className={`${tCls(fl)} font-bold text-slate-800`}>{mod.title}</h3>
             </div>
             <div className="p-4">
-              <p className={`${dCls(fl)} text-slate-600 whitespace-pre-line leading-relaxed`}>
-                {mod.content}
-              </p>
+              {/* Top images */}
+              {mod.images && mod.images.filter((img: any) => img.url && img.position === 'top').map((img: any, i: number) => (
+                <div key={`top-${i}`} className={`${img.size === 'small' ? 'w-1/4' : img.size === 'medium' ? 'w-1/2' : img.size === 'large' ? 'w-3/4' : 'w-full'} mb-3 mx-auto`}>
+                  <img src={img.url} alt={img.caption || ''} className="rounded-lg w-full object-cover" />
+                  {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                </div>
+              ))}
+              <div className={`${dCls(fl)} text-slate-600 whitespace-pre-line leading-relaxed`}>
+                {mod.content?.split(/(\*\*[^*]+\*\*)/g).map((part: string, i: number) =>
+                  part.startsWith('**') && part.endsWith('**')
+                    ? <strong key={i} className="font-bold text-slate-800">{part.slice(2, -2)}</strong>
+                    : <span key={i}>{part}</span>
+                )}
+              </div>
+              {/* Inline images */}
+              {mod.images && mod.images.filter((img: any) => img.url && img.position === 'inline').map((img: any, i: number) => (
+                <div key={`inline-${i}`} className={`${img.size === 'small' ? 'w-1/4' : img.size === 'medium' ? 'w-1/2' : img.size === 'large' ? 'w-3/4' : 'w-full'} my-3 mx-auto`}>
+                  <img src={img.url} alt={img.caption || ''} className="rounded-lg w-full object-cover" />
+                  {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                </div>
+              ))}
+              {/* Bottom images */}
+              {mod.images && mod.images.filter((img: any) => img.url && img.position === 'bottom').map((img: any, i: number) => (
+                <div key={`bottom-${i}`} className={`${img.size === 'small' ? 'w-1/4' : img.size === 'medium' ? 'w-1/2' : img.size === 'large' ? 'w-3/4' : 'w-full'} mt-3 mx-auto`}>
+                  <img src={img.url} alt={img.caption || ''} className="rounded-lg w-full object-cover" />
+                  {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                </div>
+              ))}
               {mod.warnings && mod.warnings.length > 0 && (
                 <div className="mt-3 space-y-1.5">
                   {mod.warnings.map((w, i) => (

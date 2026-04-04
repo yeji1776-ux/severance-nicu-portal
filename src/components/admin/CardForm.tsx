@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Save, Plus, Trash2 } from 'lucide-react';
 import { getIcon } from '../../lib/iconMap';
 import IconPicker from './IconPicker';
@@ -12,6 +12,7 @@ interface CardData {
   warnings: string[];
   alerts: string[];
   links: { label: string; url: string }[];
+  images: { url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[];
 }
 
 interface CardFormProps {
@@ -28,7 +29,9 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
   const [warnings, setWarnings] = useState<string[]>([]);
   const [alerts, setAlerts] = useState<string[]>([]);
   const [links, setLinks] = useState<{ label: string; url: string }[]>([]);
+  const [images, setImages] = useState<{ url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[]>([]);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (card) {
@@ -38,6 +41,7 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
       setWarnings(card.warnings || []);
       setAlerts(card.alerts || []);
       setLinks(card.links || []);
+      setImages(card.images || []);
     }
   }, [card]);
 
@@ -52,7 +56,48 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
       warnings: warnings.filter(w => w.trim()),
       alerts: alerts.filter(a => a.trim()),
       links: links.filter(l => l.label.trim() && l.url.trim()),
+      images: images.filter(img => img.url.trim()),
     });
+  }
+
+  function insertBold() {
+    const ta = contentRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = content.substring(start, end);
+    const before = content.substring(0, start);
+    const after = content.substring(end);
+    if (selected) {
+      setContent(before + '**' + selected + '**' + after);
+    } else {
+      setContent(before + '**굵은 텍스트**' + after);
+    }
+    setTimeout(() => {
+      ta.focus();
+      const newPos = selected ? end + 4 : start + 2;
+      ta.setSelectionRange(newPos, selected ? newPos : start + 9);
+    }, 0);
+  }
+
+  function renderContent(text: string) {
+    if (!text) return null;
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-bold text-slate-800">{part.slice(2, -2)}</strong>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  }
+
+  function imgSizeClass(size: string) {
+    switch (size) {
+      case 'small': return 'w-1/4';
+      case 'medium': return 'w-1/2';
+      case 'large': return 'w-3/4';
+      default: return 'w-full';
+    }
   }
 
   const Icon = getIcon(iconName);
@@ -93,13 +138,27 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
 
               {/* Content */}
               <div>
-                <label className="text-xs font-semibold text-slate-500 mb-1 block">내용</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-slate-500">내용</label>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={insertBold}
+                      className="px-2 py-0.5 text-xs font-bold border rounded hover:bg-slate-100 transition-colors"
+                      title="굵게 (선택 후 클릭)"
+                    >
+                      B
+                    </button>
+                  </div>
+                </div>
                 <textarea
+                  ref={contentRef}
                   value={content}
                   onChange={e => setContent(e.target.value)}
-                  className="w-full h-48 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none leading-relaxed"
-                  placeholder="카드 내용을 입력하세요..."
+                  className="w-full h-48 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/20 resize-none leading-relaxed font-mono"
+                  placeholder="카드 내용을 입력하세요... (**굵게** 가능)"
                 />
+                <p className="text-[10px] text-slate-400 mt-1">**텍스트** 형식으로 굵게 표시됩니다</p>
               </div>
 
               {/* Warnings */}
@@ -176,6 +235,67 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
                   </div>
                 ))}
               </div>
+
+              {/* Images */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-slate-500">이미지</label>
+                  <button onClick={() => setImages([...images, { url: '', position: 'top', size: 'full', caption: '' }])} className="text-xs text-primary flex items-center gap-1">
+                    <Plus className="size-3" /> 추가
+                  </button>
+                </div>
+                {images.map((img, i) => (
+                  <div key={i} className="mb-3 p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        value={img.url}
+                        onChange={e => { const next = [...images]; next[i] = { ...next[i], url: e.target.value }; setImages(next); }}
+                        className="flex-1 border rounded-lg px-3 py-1.5 text-xs outline-none"
+                        placeholder="이미지 URL (https://...)"
+                      />
+                      <button onClick={() => setImages(images.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600">
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
+                    <input
+                      value={img.caption}
+                      onChange={e => { const next = [...images]; next[i] = { ...next[i], caption: e.target.value }; setImages(next); }}
+                      className="w-full border rounded-lg px-3 py-1.5 text-xs outline-none"
+                      placeholder="이미지 설명 (선택)"
+                    />
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <label className="text-[10px] text-slate-400 block mb-0.5">위치</label>
+                        <select
+                          value={img.position}
+                          onChange={e => { const next = [...images]; next[i] = { ...next[i], position: e.target.value as any }; setImages(next); }}
+                          className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none bg-white"
+                        >
+                          <option value="top">상단</option>
+                          <option value="inline">본문 중간</option>
+                          <option value="bottom">하단</option>
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-[10px] text-slate-400 block mb-0.5">크기</label>
+                        <select
+                          value={img.size}
+                          onChange={e => { const next = [...images]; next[i] = { ...next[i], size: e.target.value as any }; setImages(next); }}
+                          className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none bg-white"
+                        >
+                          <option value="small">작게 (25%)</option>
+                          <option value="medium">중간 (50%)</option>
+                          <option value="large">크게 (75%)</option>
+                          <option value="full">전체</option>
+                        </select>
+                      </div>
+                    </div>
+                    {img.url && (
+                      <img src={img.url} alt={img.caption} className="rounded-lg border max-h-24 object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Right: Live Preview */}
@@ -195,9 +315,30 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
                   </div>
                   {/* Card content */}
                   <div className="p-4">
+                    {/* Top images */}
+                    {images.filter(img => img.url.trim() && img.position === 'top').map((img, i) => (
+                      <div key={`top-${i}`} className={`${imgSizeClass(img.size)} mb-3 mx-auto`}>
+                        <img src={img.url} alt={img.caption} className="rounded-lg w-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                        {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                      </div>
+                    ))}
                     <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
-                      {content || '내용을 입력하면 여기에 표시됩니다...'}
+                      {renderContent(content) || '내용을 입력하면 여기에 표시됩니다...'}
                     </p>
+                    {/* Inline images */}
+                    {images.filter(img => img.url.trim() && img.position === 'inline').map((img, i) => (
+                      <div key={`inline-${i}`} className={`${imgSizeClass(img.size)} my-3 mx-auto`}>
+                        <img src={img.url} alt={img.caption} className="rounded-lg w-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                        {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                      </div>
+                    ))}
+                    {/* Bottom images */}
+                    {images.filter(img => img.url.trim() && img.position === 'bottom').map((img, i) => (
+                      <div key={`bottom-${i}`} className={`${imgSizeClass(img.size)} mt-3 mx-auto`}>
+                        <img src={img.url} alt={img.caption} className="rounded-lg w-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                        {img.caption && <p className="text-[10px] text-slate-400 text-center mt-1">{img.caption}</p>}
+                      </div>
+                    ))}
                   </div>
                   {/* Warnings */}
                   {warnings.filter(w => w.trim()).length > 0 && (

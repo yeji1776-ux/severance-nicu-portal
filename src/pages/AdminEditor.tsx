@@ -43,6 +43,7 @@ interface Module {
   warnings: string | null;
   alerts: string | null;
   links: string | null;
+  images: string | null;
   status: string;
   category_slug: string;
 }
@@ -194,6 +195,7 @@ export default function AdminEditor() {
       warnings: data.warnings?.length ? data.warnings : null,
       alerts: data.alerts?.length ? data.alerts : null,
       links: data.links?.length ? data.links : null,
+      images: data.images?.length ? data.images : null,
     };
     if (data.id) {
       await fetch(`/api/content/modules/${data.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
@@ -235,6 +237,7 @@ export default function AdminEditor() {
       warnings: mod.warnings ? JSON.parse(mod.warnings) : [],
       alerts: mod.alerts ? JSON.parse(mod.alerts) : [],
       links: mod.links ? JSON.parse(mod.links) : [],
+      images: mod.images ? JSON.parse(mod.images) : [],
     });
     setShowCardForm(true);
   }
