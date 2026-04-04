@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Save, Plus, Trash2, Upload } from 'lucide-react';
+import { X, Save, Plus, Trash2, Upload, Pencil } from 'lucide-react';
 import { getIcon } from '../../lib/iconMap';
 import IconPicker from './IconPicker';
 
@@ -238,6 +238,38 @@ export default function CardForm({ card, categoryId, existingTags, onSave, onClo
                     >
                       + 새 그룹
                     </button>
+                    {tag && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newName = prompt('그룹 이름 수정', tag);
+                            if (newName && newName.trim() && newName.trim() !== tag) {
+                              const trimmed = newName.trim();
+                              setLocalTags(prev => prev.map(t => t === tag ? trimmed : t));
+                              setTag(trimmed);
+                            }
+                          }}
+                          className="shrink-0 px-2 py-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-colors"
+                          title="그룹 이름 수정"
+                        >
+                          <Pencil className="size-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`"${tag}" 그룹을 삭제하시겠습니까?\n이 카드의 그룹이 해제됩니다.`)) {
+                              setLocalTags(prev => prev.filter(t => t !== tag));
+                              setTag('');
+                            }
+                          }}
+                          className="shrink-0 px-2 py-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                          title="그룹 삭제"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
                 <p className="text-[10px] text-slate-400 mt-1">같은 그룹의 카드끼리 묶어서 표시됩니다</p>
