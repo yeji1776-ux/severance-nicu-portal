@@ -781,6 +781,7 @@ export default function ParentDashboard() {
     'ped-er': '소아응급',
   };
   const currentDeptName = deptDisplayName[deptSlug || 'nicu'] || deptSlug || 'NICU';
+  const isNicu = !deptSlug || deptSlug === 'nicu';
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
 
@@ -916,15 +917,21 @@ export default function ParentDashboard() {
       <div className="bg-primary px-4 md:px-6 lg:px-8 py-4 md:py-6 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-white text-lg md:text-xl lg:text-2xl font-bold">보호자 가이드</h2>
-          <button
-            onClick={() => { setNicknameInput(patient?.nickname || ''); setShowNicknameModal(true); }}
-            className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5 hover:text-white/90 transition-colors text-left"
-          >
-            {patient?.nickname
-              ? <>{patient.name} (<span className="text-white/90 font-semibold">{patient.nickname}</span>) 아기의 보호자님</>
-              : <>입원부터 퇴원까지, 우리 아이를 위한 안내 <span className="underline underline-offset-2 decoration-dotted">태명 등록</span></>
-            }
-          </button>
+          {isNicu ? (
+            <button
+              onClick={() => { setNicknameInput(patient?.nickname || ''); setShowNicknameModal(true); }}
+              className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5 hover:text-white/90 transition-colors text-left"
+            >
+              {patient?.nickname
+                ? <>{patient.name} (<span className="text-white/90 font-semibold">{patient.nickname}</span>) 아기의 보호자님</>
+                : <>입원부터 퇴원까지, 우리 아이를 위한 안내 <span className="underline underline-offset-2 decoration-dotted">태명 등록</span></>
+              }
+            </button>
+          ) : (
+            <p className="text-white/70 text-xs md:text-sm lg:text-base mt-0.5">
+              {currentDeptName} 입원·치료·퇴원 안내
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {/* 북마크 */}
@@ -939,31 +946,33 @@ export default function ParentDashboard() {
               </span>
             )}
           </button>
-          {/* 교정주수 */}
-          <button
-            onClick={() => setShowCorrectedCalc(v => !v)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
-              showCorrectedCalc
-                ? 'bg-white text-primary border-white'
-                : correctedResult
-                  ? 'bg-white/15 text-white border-white/40 hover:bg-white/25'
-                  : 'bg-white/10 text-white/80 border-white/30 hover:bg-white/20'
-            }`}
-          >
-            <Calendar className="size-3.5 shrink-0" />
-            <span>
-              {correctedResult
-                ? <><span className="opacity-80">교정 </span><span className="font-extrabold">{correctedResult.corrWeeks}주 {correctedResult.corrDays}일</span></>
-                : '교정주수'}
-            </span>
-          </button>
+          {/* 교정주수 — NICU 전용 */}
+          {isNicu && (
+            <button
+              onClick={() => setShowCorrectedCalc(v => !v)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border-2 transition-all ${
+                showCorrectedCalc
+                  ? 'bg-white text-primary border-white'
+                  : correctedResult
+                    ? 'bg-white/15 text-white border-white/40 hover:bg-white/25'
+                    : 'bg-white/10 text-white/80 border-white/30 hover:bg-white/20'
+              }`}
+            >
+              <Calendar className="size-3.5 shrink-0" />
+              <span>
+                {correctedResult
+                  ? <><span className="opacity-80">교정 </span><span className="font-extrabold">{correctedResult.corrWeeks}주 {correctedResult.corrDays}일</span></>
+                  : '교정주수'}
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* ═══ 여정 프로그레스 바 ═══ */}
       <div className="bg-white px-4 md:px-6 lg:px-8 py-3 md:py-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <p className="text-xs md:text-sm lg:text-base font-bold text-slate-500 shrink-0">우리 아이의 여정</p>
+          <p className="text-xs md:text-sm lg:text-base font-bold text-slate-500 shrink-0">{isNicu ? '우리 아이의 여정' : '치료 여정'}</p>
           <div className="flex items-center flex-1 relative">
             <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200" />
             <div
@@ -988,8 +997,8 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      {/* ═══ 교정주수 계산기 (토글) ═══ */}
-      <FontSizeContext.Provider value={fontLevel}>
+      {/* ═══ 교정주수 계산기 (토글) — NICU 전용 ═══ */}
+      {isNicu && <FontSizeContext.Provider value={fontLevel}>
         <div className={`grid transition-all duration-300 ease-in-out ${showCorrectedCalc ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
             <div className="px-4 md:px-6 lg:px-8 py-4 bg-indigo-50/60 border-b border-indigo-100">
@@ -1002,7 +1011,7 @@ export default function ParentDashboard() {
             </div>
           </div>
         </div>
-      </FontSizeContext.Provider>
+      </FontSizeContext.Provider>}
 
       {/* ═══ 카테고리 탭 ═══ */}
       <div className="bg-white border-b border-slate-100 px-2 md:px-6 lg:px-8 py-2 md:py-3">
@@ -1088,8 +1097,8 @@ export default function ParentDashboard() {
         </div>
       </nav>
 
-      {/* ═══ 태명 설정 모달 ═══ */}
-      {showNicknameModal && (
+      {/* ═══ 태명 설정 모달 — NICU 전용 ═══ */}
+      {isNicu && showNicknameModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6" onClick={() => setShowNicknameModal(false)}>
           <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-5" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold text-base text-slate-800 mb-1">태명 등록</h3>

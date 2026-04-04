@@ -227,7 +227,7 @@ export default function LandingPage() {
                       type="text"
                       value={chartNumber}
                       onChange={e => setChartNumber(e.target.value)}
-                      placeholder="아기 등록번호를 입력해 주세요"
+                      placeholder={selectedDept?.slug === 'nicu' ? '아기 등록번호를 입력해 주세요' : '환자 등록번호를 입력해 주세요'}
                       autoFocus
                       className="w-full border border-slate-200 rounded-lg pl-10 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-300 bg-white"
                       onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
