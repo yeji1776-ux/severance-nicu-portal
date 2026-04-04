@@ -8,7 +8,10 @@ INSERT INTO departments (slug, name, icon_name, description, theme_color, sort_o
 -- Users (password: 'password123' hashed with bcryptjs)
 INSERT INTO users (email, password_hash, name, role, department_id) VALUES
   ('parent@test.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', 'Lee Ji-won', 'parent', NULL),
-  ('admin@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', '관리자', 'admin', 1);
+  ('admin-nicu@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', 'NICU 관리자', 'admin', 1),
+  ('admin-ortho@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', '정형외과 관리자', 'admin', 2),
+  ('admin-ccu@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', 'CCU 관리자', 'admin', 3),
+  ('admin-er@severance.com', '$2b$10$nMXhqrb8d.0V9XRvs.V5aOFyxeOztLdyzac9pTqy4frTPx0zC8ZS6', '소아응급 관리자', 'admin', 4);
 
 -- Patients
 INSERT INTO patients (chart_number, name, gestational_weeks, birth_weight, birth_date, admission_date, department_id) VALUES

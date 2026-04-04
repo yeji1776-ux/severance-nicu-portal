@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Save, Plus, Trash2 } from 'lucide-react';
+import { X, Save, Plus, Trash2, Upload } from 'lucide-react';
 import { getIcon } from '../../lib/iconMap';
 import IconPicker from './IconPicker';
 
@@ -31,7 +31,28 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
   const [links, setLinks] = useState<{ label: string; url: string }[]>([]);
   const [images, setImages] = useState<{ url: string; position: 'top' | 'bottom' | 'inline'; size: 'small' | 'medium' | 'large' | 'full'; caption: string }[]>([]);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [uploading, setUploading] = useState<number | null>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  async function handleFileUpload(index: number, file: File) {
+    setUploading(index);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) { const err = await res.json(); alert(err.error || '업로드 실패'); return; }
+      const { url } = await res.json();
+      const next = [...images];
+      next[index] = { ...next[index], url };
+      setImages(next);
+    } catch { alert('업로드 중 오류가 발생했습니다.'); }
+    finally { setUploading(null); }
+  }
 
   useEffect(() => {
     if (card) {
@@ -260,9 +281,19 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
                         value={img.url}
                         onChange={e => { const next = [...images]; next[i] = { ...next[i], url: e.target.value }; setImages(next); }}
                         className="flex-1 border rounded-lg px-3 py-1.5 text-xs outline-none"
-                        placeholder="이미지 URL (https://...)"
+                        placeholder="이미지 URL 또는 파일 업로드 →"
                       />
-                      <button onClick={() => setImages(images.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600">
+                      <label className={`shrink-0 px-2 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer transition-colors ${uploading === i ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary hover:bg-primary/20'}`}>
+                        {uploading === i ? '...' : <Upload className="size-3.5" />}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          className="hidden"
+                          disabled={uploading === i}
+                          onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(i, f); e.target.value = ''; }}
+                        />
+                      </label>
+                      <button onClick={() => setImages(images.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 shrink-0">
                         <Trash2 className="size-3.5" />
                       </button>
                     </div>
