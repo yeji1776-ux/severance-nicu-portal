@@ -259,7 +259,7 @@ router.get('/notifications/history', (_req, res) => {
 
 // Broadcast notification
 router.post('/notifications/broadcast', (req: AuthenticatedRequest, res: Response) => {
-  const { title, message, type } = req.body;
+  const { title, message, type, scheduled_at } = req.body;
 
   const deptId = req.user!.department_id;
   let users: any[];
@@ -273,11 +273,11 @@ router.post('/notifications/broadcast', (req: AuthenticatedRequest, res: Respons
   } else {
     users = db.prepare('SELECT id FROM users').all();
   }
-  const stmt = db.prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)');
+  const stmt = db.prepare('INSERT INTO notifications (user_id, title, message, type, scheduled_at) VALUES (?, ?, ?, ?, ?)');
 
   const insertMany = db.transaction((users: any[]) => {
     for (const user of users) {
-      stmt.run(user.id, title, message, type || 'info');
+      stmt.run(user.id, title, message, type || 'info', scheduled_at || null);
     }
   });
 

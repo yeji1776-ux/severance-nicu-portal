@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   message TEXT,
   type TEXT NOT NULL DEFAULT 'info' CHECK(type IN ('info', 'warning', 'urgent')),
   is_read INTEGER DEFAULT 0,
+  scheduled_at TEXT DEFAULT NULL,
   created_at TEXT DEFAULT (datetime('now'))
 );
 

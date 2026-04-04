@@ -95,14 +95,27 @@ function SendNotificationModal({ onClose }: { onClose: () => void }) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState<'info' | 'warning' | 'urgent'>('info');
+  const [sendMode, setSendMode] = useState<'now' | 'scheduled'>('now');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Default scheduled date/time to now + 1 hour
+  useState(() => {
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    setScheduledDate(d.toISOString().slice(0, 10));
+    setScheduledTime(d.toTimeString().slice(0, 5));
+  });
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await broadcastNotification({ title, message, type });
+      const scheduled_at = sendMode === 'scheduled' && scheduledDate && scheduledTime
+        ? `${scheduledDate}T${scheduledTime}:00`
+        : undefined;
+      await broadcastNotification({ title, message, type, scheduled_at });
       setSent(true);
       setTimeout(onClose, 1500);
     } catch (err: any) {
@@ -112,10 +125,16 @@ function SendNotificationModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  const typeColors = {
+    info: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', label: '일반' },
+    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: '주의' },
+    urgent: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', label: '긴급' },
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-bold">알림 발송</h3>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X className="size-5" /></button>
         </div>
@@ -125,22 +144,40 @@ function SendNotificationModal({ onClose }: { onClose: () => void }) {
             <div className="size-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto mb-4">
               <Send className="size-8" />
             </div>
-            <p className="font-bold text-green-700">알림이 발송되었습니다!</p>
+            <p className="font-bold text-green-700">
+              {sendMode === 'scheduled' ? '알림이 예약되었습니다!' : '알림이 발송되었습니다!'}
+            </p>
+            {sendMode === 'scheduled' && (
+              <p className="text-sm text-slate-500 mt-1">{scheduledDate} {scheduledTime}</p>
+            )}
           </div>
         ) : (
           <form onSubmit={handleSend} className="space-y-4">
+            {/* Type */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">유형</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as any)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-              >
-                <option value="info">일반</option>
-                <option value="warning">주의</option>
-                <option value="urgent">긴급</option>
-              </select>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">유형</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['info', 'warning', 'urgent'] as const).map(t => {
+                  const c = typeColors[t];
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setType(t)}
+                      className={`py-2 rounded-xl text-xs font-bold border-2 transition-all ${
+                        type === t
+                          ? `${c.bg} ${c.border} ${c.text}`
+                          : 'border-slate-200 text-slate-400 hover:border-slate-300'
+                      }`}
+                    >
+                      {t === 'info' ? '📋 일반' : t === 'warning' ? '⚠️ 주의' : '🚨 긴급'}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">제목</label>
               <input
@@ -151,6 +188,8 @@ function SendNotificationModal({ onClose }: { onClose: () => void }) {
                 required
               />
             </div>
+
+            {/* Message */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">내용</label>
               <textarea
@@ -162,12 +201,68 @@ function SendNotificationModal({ onClose }: { onClose: () => void }) {
                 required
               />
             </div>
+
+            {/* Send mode toggle */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">발송 시간</label>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setSendMode('now')}
+                  className={`py-2 rounded-xl text-xs font-bold border-2 transition-all ${
+                    sendMode === 'now'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 text-slate-400'
+                  }`}
+                >
+                  즉시 발송
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSendMode('scheduled')}
+                  className={`py-2 rounded-xl text-xs font-bold border-2 transition-all ${
+                    sendMode === 'scheduled'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 text-slate-400'
+                  }`}
+                >
+                  예약 발송
+                </button>
+              </div>
+              {sendMode === 'scheduled' && (
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={scheduledDate}
+                    onChange={e => setScheduledDate(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                    required
+                  />
+                  <input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={e => setScheduledTime(e.target.value)}
+                    className="w-28 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 text-sm"
+              className={`w-full py-3 font-bold rounded-xl transition-all disabled:opacity-50 text-sm ${
+                type === 'urgent'
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'bg-primary text-white hover:bg-primary/90'
+              }`}
             >
-              {loading ? '발송 중...' : '전체 보호자에게 발송'}
+              {loading
+                ? '처리 중...'
+                : sendMode === 'scheduled'
+                  ? `${scheduledDate} ${scheduledTime} 예약 발송`
+                  : '전체 보호자에게 즉시 발송'}
             </button>
           </form>
         )}
