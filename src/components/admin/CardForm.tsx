@@ -35,6 +35,8 @@ export default function CardForm({ card, categoryId, existingTags, onSave, onClo
   const [tag, setTag] = useState('');
   const [showNewTag, setShowNewTag] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
+  const [localTags, setLocalTags] = useState<string[]>([]);
+  const allTags = [...new Set([...existingTags, ...localTags])];
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
@@ -186,7 +188,9 @@ export default function CardForm({ card, categoryId, existingTags, onSave, onClo
                       autoFocus
                       onKeyDown={e => {
                         if (e.key === 'Enter' && newTagInput.trim()) {
-                          setTag(newTagInput.trim());
+                          const t = newTagInput.trim();
+                          setLocalTags(prev => prev.includes(t) ? prev : [...prev, t]);
+                          setTag(t);
                           setShowNewTag(false);
                           setNewTagInput('');
                         }
@@ -196,7 +200,9 @@ export default function CardForm({ card, categoryId, existingTags, onSave, onClo
                       type="button"
                       onClick={() => {
                         if (newTagInput.trim()) {
-                          setTag(newTagInput.trim());
+                          const t = newTagInput.trim();
+                          setLocalTags(prev => prev.includes(t) ? prev : [...prev, t]);
+                          setTag(t);
                         }
                         setShowNewTag(false);
                         setNewTagInput('');
@@ -221,7 +227,7 @@ export default function CardForm({ card, categoryId, existingTags, onSave, onClo
                       className="flex-1 border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-white"
                     >
                       <option value="">그룹 없음</option>
-                      {existingTags.map(t => (
+                      {allTags.map(t => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
