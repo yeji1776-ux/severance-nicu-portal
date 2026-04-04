@@ -98,8 +98,9 @@ function SortableCardItem({
 // ─── Main Component ──────────────────────────
 export default function AdminEditor() {
   const navigate = useNavigate();
-  const { logout, token } = useAuth();
+  const { logout, token, user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [adminDeptSlug, setAdminDeptSlug] = useState<string | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [activeTab, setActiveTab] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,6 +114,16 @@ export default function AdminEditor() {
 
   const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 
+  // Fetch admin's department slug on mount
+  useEffect(() => {
+    if (user?.department_id) {
+      fetch('/api/departments').then(r => r.json()).then((depts: any[]) => {
+        const dept = depts.find((d: any) => d.id === user.department_id);
+        if (dept) setAdminDeptSlug(dept.slug);
+      });
+    }
+  }, [user?.department_id]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -121,25 +132,27 @@ export default function AdminEditor() {
   // ─── Data Fetching ──────────────────────────
   const fetchCategories = useCallback(async () => {
     try {
-      const r = await fetch('/api/content/categories');
+      const params = adminDeptSlug ? `?department=${adminDeptSlug}` : '';
+      const r = await fetch(`/api/content/categories${params}`);
       const data = await r.json();
       setCategories(data);
       if (data.length > 0 && activeTab === null) {
         setActiveTab(data[0].id);
       }
     } catch {}
-  }, []);
+  }, [adminDeptSlug]);
 
   const fetchModules = useCallback(async () => {
     if (!activeTab) return;
     const cat = categories.find(c => c.id === activeTab);
     if (!cat) return;
     try {
-      const r = await fetch(`/api/content/modules?category=${cat.slug}`);
+      const params = adminDeptSlug ? `&department=${adminDeptSlug}` : '';
+      const r = await fetch(`/api/content/modules?category=${cat.slug}${params}`);
       const data = await r.json();
       setModules(data);
     } catch {}
-  }, [activeTab, categories]);
+  }, [activeTab, categories, adminDeptSlug]);
 
   useEffect(() => {
     fetchCategories().then(() => setLoading(false));
@@ -250,7 +263,9 @@ export default function AdminEditor() {
         <header className="h-14 md:h-20 bg-white/80 backdrop-blur-md border-b border-primary/10 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
           <div>
             <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">콘텐츠 관리</h2>
-            <p className="text-xs text-slate-400 hidden sm:block">카테고리와 카드를 관리합니다</p>
+            <p className="text-xs text-slate-400 hidden sm:block">
+              {adminDeptSlug ? `${adminDeptSlug.toUpperCase()} 부서` : '카테고리와 카드를 관리합니다'}
+            </p>
           </div>
           <div className="flex items-center gap-2 ml-4">
             <button
