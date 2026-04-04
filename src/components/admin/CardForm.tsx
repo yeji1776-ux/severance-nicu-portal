@@ -68,16 +68,25 @@ export default function CardForm({ card, categoryId, onSave, onClose }: CardForm
     const selected = content.substring(start, end);
     const before = content.substring(0, start);
     const after = content.substring(end);
+
     if (selected) {
-      setContent(before + '**' + selected + '**' + after);
+      // Toggle: if already bold, remove **
+      if (selected.startsWith('**') && selected.endsWith('**')) {
+        const unwrapped = selected.slice(2, -2);
+        setContent(before + unwrapped + after);
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(start, start + unwrapped.length); }, 0);
+      } else if (before.endsWith('**') && after.startsWith('**')) {
+        // Selection is inside ** markers
+        setContent(before.slice(0, -2) + selected + after.slice(2));
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(start - 2, end - 2); }, 0);
+      } else {
+        setContent(before + '**' + selected + '**' + after);
+        setTimeout(() => { ta.focus(); ta.setSelectionRange(start, end + 4); }, 0);
+      }
     } else {
       setContent(before + '**굵은 텍스트**' + after);
+      setTimeout(() => { ta.focus(); ta.setSelectionRange(start + 2, start + 9); }, 0);
     }
-    setTimeout(() => {
-      ta.focus();
-      const newPos = selected ? end + 4 : start + 2;
-      ta.setSelectionRange(newPos, selected ? newPos : start + 9);
-    }, 0);
   }
 
   function renderContent(text: string) {
