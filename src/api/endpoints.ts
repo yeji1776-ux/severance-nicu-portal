@@ -46,8 +46,8 @@ export const markNotificationRead = (id: number) => api.put<any>(`/notifications
 // AI Chat
 export const getChatSessions = () => api.get<any[]>('/ai/sessions');
 export const createChatSession = () => api.post<any>('/ai/sessions', {});
-export const sendChatMessage = (sessionId: number, message: string) =>
-  api.post<any>('/ai/chat', { sessionId, message });
+export const sendChatMessage = (sessionId: number, message: string, department?: string) =>
+  api.post<any>('/ai/chat', { sessionId, message, department });
 
 // Admin
 export const getContentStats = () => api.get<any>('/admin/content/stats');

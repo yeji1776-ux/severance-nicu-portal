@@ -4,14 +4,15 @@
 v2 — 다중 진료과 확장 (병동/중환자실/응급실)
 
 ## 현재 상태
-Phase 2 완료 — Phase 3부터 실행 대기
+Phase 3 완료 (Phase 1+2에서 흡수) — Phase 4 실행 대기
 
 ## 완료된 Phase
 - Phase 1: 멀티 디파트먼트 데이터 모델 ✅ (2026-04-04)
 - Phase 2: 진료과 선택 랜딩페이지 ✅ (2026-04-04)
+- Phase 3: 라우팅 & 컨텍스트 구조 변경 ✅ (Phase 1+2에서 흡수됨)
 
 ## 다음 작업
-Phase 3: 라우팅 & 컨텍스트 구조 변경 → `/gsd:plan-phase 3`
+Phase 4: 대시보드 진료과 분기 → plan + execute
 
 ## 메모
 - 코드베이스 맵: .planning/codebase/ (2026-04-04 생성)

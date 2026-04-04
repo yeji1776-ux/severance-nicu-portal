@@ -27,12 +27,13 @@ export interface ContentModule {
   category_slug: string;
 }
 
-export function useContentCategories() {
+export function useContentCategories(department?: string) {
   const [categories, setCategories] = useState<ContentCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/content/categories')
+    const params = department ? `?department=${department}` : '';
+    fetch(`/api/content/categories${params}`)
       .then(r => r.json())
       .then(data => {
         setCategories(
@@ -44,7 +45,7 @@ export function useContentCategories() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [department]);
 
   const journeySteps = categories
     .filter(c => c.is_journey_step)
@@ -54,7 +55,7 @@ export function useContentCategories() {
   return { categories, journeySteps, loading };
 }
 
-export function useContentModules(categorySlug: string | null) {
+export function useContentModules(categorySlug: string | null, department?: string) {
   const [modules, setModules] = useState<ContentModule[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -62,7 +63,9 @@ export function useContentModules(categorySlug: string | null) {
     if (!categorySlug) { setModules([]); return; }
     setLoading(true);
     try {
-      const r = await fetch(`/api/content/modules?category=${categorySlug}&status=published`);
+      let url = `/api/content/modules?category=${categorySlug}&status=published`;
+      if (department) url += `&department=${department}`;
+      const r = await fetch(url);
       const data = await r.json();
       setModules(
         data.map((m: any) => ({
@@ -78,7 +81,7 @@ export function useContentModules(categorySlug: string | null) {
     } finally {
       setLoading(false);
     }
-  }, [categorySlug]);
+  }, [categorySlug, department]);
 
   useEffect(() => {
     fetchModules();

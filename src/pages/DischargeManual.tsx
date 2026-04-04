@@ -6,21 +6,31 @@ import {
   Home,
   BookOpen
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { getDischargeCategories } from '../api/endpoints';
 import { iconMap } from '../lib/iconMap';
 
 export default function DischargeManual() {
   const navigate = useNavigate();
-  const { data: categories, loading } = useApi(() => getDischargeCategories(), []);
+  const { deptSlug } = useParams<{ deptSlug: string }>();
+
+  const deptLabel: Record<string, string> = { nicu: 'NICU', 'ortho-ward': '정형외과', ccu: 'CCU', 'ped-er': '소아응급' };
+  const deptManualDesc: Record<string, string> = {
+    nicu: '신생아 중환자실 퇴원 후, 가정에서의 세심한 보살핌은 아이의 성장에 매우 중요합니다.',
+    'ortho-ward': '정형외과 퇴원 후, 재활과 일상생활 관리가 빠른 회복에 중요합니다.',
+    ccu: '심혈관 중환자실 퇴실 후, 투약과 생활습관 관리가 재발 예방에 필수적입니다.',
+    'ped-er': '응급실 귀가 후, 증상 관찰과 주의사항 확인이 중요합니다.',
+  };
+
+  const { data: categories, loading } = useApi(() => getDischargeCategories(deptSlug), [deptSlug]);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-white shadow-xl overflow-x-hidden pb-24">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center bg-white/90 backdrop-blur-md p-4 border-b border-slate-200 justify-between">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(deptSlug ? `/dept/${deptSlug}/dashboard` : '/dashboard')}
           className="text-primary flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 rounded-full transition-colors"
         >
           <ArrowLeft className="size-6" />
@@ -38,7 +48,7 @@ export default function DischargeManual() {
             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}
           ></div>
           <div className="relative z-10">
-            <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-2">NICU 가이드</span>
+            <span className="inline-block px-3 py-1 bg-white/20 text-white text-xs font-semibold rounded-full mb-2">{deptLabel[deptSlug || 'nicu'] || deptSlug} 가이드</span>
             <h2 className="text-white text-2xl font-bold leading-tight">우리 아이 건강을 위한<br/>안전한 퇴원 후 생활</h2>
           </div>
         </div>
@@ -46,7 +56,7 @@ export default function DischargeManual() {
 
       <div className="px-4 py-2">
         <p className="text-slate-600 text-sm leading-relaxed">
-          신생아 중환자실 퇴원 후, 가정에서의 세심한 보살핌은 아이의 성장에 매우 중요합니다. 항목별 가이드를 확인해 주세요.
+          {deptManualDesc[deptSlug || 'nicu'] || '퇴원 후 관리가 중요합니다.'} 항목별 가이드를 확인해 주세요.
         </p>
       </div>
 
@@ -110,7 +120,7 @@ export default function DischargeManual() {
       {/* Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 z-20 max-w-md mx-auto">
         <div className="flex gap-2 border-t border-slate-200 bg-white/90 backdrop-blur-md px-4 pb-6 pt-2">
-          <button className="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400" onClick={() => navigate('/dashboard')}>
+          <button className="flex flex-1 flex-col items-center justify-end gap-1 text-slate-400" onClick={() => navigate(deptSlug ? `/dept/${deptSlug}/dashboard` : '/dashboard')}>
             <Home className="size-5" />
             <p className="text-[10px] font-medium">홈</p>
           </button>

@@ -42,7 +42,7 @@ import {
   CheckCircle,
   Bookmark,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useContentCategories, useContentModules, type ContentModule } from '../hooks/useContentData';
 import { getIcon } from '../lib/iconMap';
@@ -771,7 +771,16 @@ export { admissionContent, visitContent, treatmentContent, diseaseGroups, discha
 // ─── 메인 컴포넌트 ──────────────────────────
 export default function ParentDashboard() {
   const navigate = useNavigate();
+  const { deptSlug } = useParams<{ deptSlug: string }>();
   const { logout, user, patient, setNickname } = useAuth();
+
+  const deptDisplayName: Record<string, string> = {
+    nicu: 'NICU',
+    'ortho-ward': '정형외과',
+    ccu: 'CCU',
+    'ped-er': '소아응급',
+  };
+  const currentDeptName = deptDisplayName[deptSlug || 'nicu'] || deptSlug || 'NICU';
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
 
@@ -780,15 +789,15 @@ export default function ParentDashboard() {
     if (patient?.status === 'expired') {
       navigate('/');
     } else if (patient?.status === 'discharged') {
-      navigate('/manual');
+      navigate(`/dept/${deptSlug}/manual`);
     }
   }, [patient?.status, navigate]);
 
   // user-specific storage prefix
-  const storagePrefix = user?.name ? `nicu-data-${user.name}-` : 'nicu-';
+  const storagePrefix = user?.name ? `${deptSlug || 'nicu'}-data-${user.name}-` : `${deptSlug || 'nicu'}-`;
 
   // Dynamic categories from DB
-  const { categories: dbCategories, journeySteps, loading: catLoading } = useContentCategories();
+  const { categories: dbCategories, journeySteps, loading: catLoading } = useContentCategories(deptSlug);
 
   const [activeTab, setActiveTab] = useState<TabId>('admission');
 
@@ -873,10 +882,10 @@ export default function ParentDashboard() {
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-primary/10 bg-white/95 backdrop-blur-md px-4 md:px-6 lg:px-8 py-3 md:py-4">
         <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => setActiveTab('admission')}>
           <div className="size-9 md:size-11 rounded-lg shrink-0 flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#1b304e' }}>
-            <img src="/fabicon.png" alt="Severance NICU" className="size-8 md:size-10 object-contain" />
+            <img src="/fabicon.png" alt={`Severance ${currentDeptName}`} className="size-8 md:size-10 object-contain" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-primary text-base md:text-lg lg:text-xl font-bold leading-tight tracking-tight truncate">Severance NICU</h1>
+            <h1 className="text-primary text-base md:text-lg lg:text-xl font-bold leading-tight tracking-tight truncate">Severance {currentDeptName}</h1>
             <p className="text-slate-500 text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-wider">보호자 포털</p>
           </div>
         </div>
@@ -2948,7 +2957,8 @@ function AdmissionConfirmation({ user }: { user: { id: number; name: string; ema
 // ─── 동적 콘텐츠 탭 (관리자가 추가한 카테고리) ──────
 function DynamicContentTab({ slug }: { slug: string }) {
   const fl = useContext(FontSizeContext);
-  const { modules, loading } = useContentModules(slug);
+  const { deptSlug } = useParams<{ deptSlug: string }>();
+  const { modules, loading } = useContentModules(slug, deptSlug);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
   if (loading) return <div className="text-center py-8 text-slate-400 text-sm">불러오는 중...</div>;
