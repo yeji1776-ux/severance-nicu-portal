@@ -1034,14 +1034,20 @@ export default function ParentDashboard() {
       <BookmarkContext.Provider value={bookmarkCtxValue}>
         <FontSizeContext.Provider value={fontLevel}>
           <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
-            {activeTab === 'admission' && <AdmissionTab user={user} />}
-            {activeTab === 'visit' && <VisitTab />}
-            {activeTab === 'treatment' && <TreatmentTab />}
-            {activeTab === 'discharge' && <DischargeTab />}
-            {activeTab === 'outpatient' && <OutpatientTab />}
-            {activeTab === 'video' && <QrTab />}
-            {activeTab === 'qna' && <QnaTab />}
-            {!KNOWN_TABS.has(activeTab) && activeTab !== 'visit' && <DynamicContentTab slug={activeTab} />}
+            {deptSlug === 'nicu' || !deptSlug ? (
+              <>
+                {activeTab === 'admission' && <AdmissionTab user={user} />}
+                {activeTab === 'visit' && <VisitTab />}
+                {activeTab === 'treatment' && <TreatmentTab />}
+                {activeTab === 'discharge' && <DischargeTab />}
+                {activeTab === 'outpatient' && <OutpatientTab />}
+                {activeTab === 'video' && <QrTab />}
+                {activeTab === 'qna' && <QnaTab />}
+                {!KNOWN_TABS.has(activeTab) && activeTab !== 'visit' && <DynamicContentTab slug={activeTab} />}
+              </>
+            ) : (
+              <DynamicContentTab slug={activeTab} />
+            )}
           </div>
         </FontSizeContext.Provider>
       </BookmarkContext.Provider>
@@ -1054,9 +1060,8 @@ export default function ParentDashboard() {
           <Phone className="size-5 text-primary mt-0.5 shrink-0" />
           <div>
             <p className="text-xs text-slate-500">문의 사항이 있으신가요?</p>
-            <p className="text-sm font-bold text-primary">신생아 중환자실: 02-2228-0000</p>
+            <p className="text-sm font-bold text-primary">{currentDeptName}: 담당 병동으로 연락해 주세요</p>
             <p className="text-xs text-slate-400 mt-1">평일 09:00~17:00 / 응급 시 24시간</p>
-            <p className="text-xs text-slate-500 mt-2">퇴원 후 외래 관련 문의는 <strong className="text-primary">세브란스병원 어린이외래</strong>로 연락해 주세요.</p>
           </div>
         </div>
       </div>
