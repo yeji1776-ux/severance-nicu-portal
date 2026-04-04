@@ -1,26 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, ShieldCheck, Baby, HeartPulse, X, Settings, UserPlus, LogIn, Hash, User } from 'lucide-react';
+import { HeartPulse, X, Settings, UserPlus, LogIn, Hash, User, Hospital } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getDepartments } from '../api/endpoints';
+import { getIcon } from '../lib/iconMap';
+import type { Department } from '../types';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { user, registerParent, loginParent } = useAuth();
+  const { user, registerParent, loginParent, setCurrentDepartment } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [chartNumber, setChartNumber] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
 
-  const handleEnter = () => {
-    if (user && user.role === 'parent') {
-      navigate('/dashboard');
-      return;
-    }
-    setShowAuthModal(true);
-  };
+  useEffect(() => {
+    getDepartments().then(setDepartments).catch(console.error);
+  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -32,7 +33,10 @@ export default function LandingPage() {
     try {
       await loginParent(chartNumber.trim());
       setShowAuthModal(false);
-      navigate('/dashboard');
+      if (selectedDept) {
+        setCurrentDepartment(selectedDept.slug);
+      }
+      navigate(selectedDept ? `/dept/${selectedDept.slug}/dashboard` : '/dashboard');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -50,7 +54,10 @@ export default function LandingPage() {
     try {
       await registerParent(chartNumber.trim(), name.trim());
       setShowAuthModal(false);
-      navigate('/dashboard');
+      if (selectedDept) {
+        setCurrentDepartment(selectedDept.slug);
+      }
+      navigate(selectedDept ? `/dept/${selectedDept.slug}/dashboard` : '/dashboard');
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -84,7 +91,7 @@ export default function LandingPage() {
       <header className="flex items-center justify-between border-b border-white/10 px-4 md:px-6 py-3 md:py-4 relative z-10">
         <div className="flex items-center gap-2 md:gap-3 text-white">
           <HeartPulse className="size-6 md:size-8 text-white fill-white" />
-          <h2 className="text-white text-base md:text-lg font-bold leading-tight tracking-tight">세브란스 NICU</h2>
+          <h2 className="text-white text-base md:text-lg font-bold leading-tight tracking-tight">세브란스 병원</h2>
         </div>
         <button
           onClick={() => navigate('/login?role=staff')}
@@ -95,37 +102,51 @@ export default function LandingPage() {
         </button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-[800px] w-full flex flex-col items-center text-center"
+          className="max-w-[800px] w-full flex flex-col items-center text-center py-6"
         >
           <div className="mb-6 md:mb-8 p-4 md:p-6 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
-            <Baby className="size-10 md:size-16 text-white" strokeWidth={1} />
+            <Hospital className="size-10 md:size-16 text-white" strokeWidth={1} />
           </div>
 
           <h1 className="text-white tracking-tight text-4xl md:text-7xl font-bold leading-tight pb-3 md:pb-4">
-            세브란스 NICU
+            세브란스 보호자 포털
           </h1>
           <p className="text-blue-100/80 text-sm md:text-xl font-medium max-w-lg leading-relaxed mb-8 md:mb-12 px-2">
-            세상의 모든 아기들을 위한 정성 어린 보살핌. 신생아의 건강과 미래를 위해 헌신합니다.
+            진료과를 선택해 주세요
           </p>
 
-          <div className="flex flex-col items-center gap-4 md:gap-6">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleEnter}
-              className="group relative flex min-w-[200px] md:min-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 md:h-16 px-6 md:px-8 bg-white text-primary text-base md:text-lg font-bold shadow-2xl shadow-primary/20 transition-transform duration-300"
-            >
-              <span className="truncate">입장하기</span>
-              <ArrowRight className="ml-2 size-5 md:size-6 transition-transform group-hover:translate-x-1" />
-            </motion.button>
-            <div className="flex items-center gap-2 text-white/60 text-xs md:text-sm">
-              <ShieldCheck className="size-3.5 md:size-4" />
-              <span>안전한 의료 포털 접속</span>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full max-w-2xl px-4">
+            {departments.map(dept => {
+              const IconComponent = getIcon(dept.icon_name);
+              return (
+                <motion.button
+                  key={dept.id}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    if (user && user.role === 'parent') {
+                      setCurrentDepartment(dept.slug);
+                      navigate(`/dept/${dept.slug}/dashboard`);
+                      return;
+                    }
+                    setSelectedDept(dept);
+                    setShowAuthModal(true);
+                  }}
+                  className="flex flex-col items-center gap-3 p-5 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all text-white text-center cursor-pointer"
+                  style={{ borderColor: `${dept.theme_color}40` }}
+                >
+                  <div className="p-3 rounded-full" style={{ backgroundColor: `${dept.theme_color}20` }}>
+                    <IconComponent className="size-7 md:size-8" style={{ color: dept.theme_color }} />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold">{dept.name}</h3>
+                  <p className="text-xs md:text-sm text-white/70 leading-relaxed">{dept.description}</p>
+                </motion.button>
+              );
+            })}
           </div>
         </motion.div>
       </main>
@@ -136,7 +157,7 @@ export default function LandingPage() {
           <div className="w-10 md:w-16 h-1 bg-white/40 rounded-full"></div>
           <div className="w-10 md:w-16 h-1 bg-white/20 rounded-full"></div>
         </div>
-        <p className="text-white/40 text-[11px] font-medium tracking-widest uppercase">Made by SMART NICU TEAM</p>
+        <p className="text-white/40 text-[11px] font-medium tracking-widest uppercase">Made by SMART HOSPITAL TEAM</p>
       </footer>
 
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
@@ -161,9 +182,9 @@ export default function LandingPage() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="bg-primary px-5 py-4 flex items-center justify-between">
+              <div className="px-5 py-4 flex items-center justify-between" style={{ backgroundColor: selectedDept?.theme_color || '#004085' }}>
                 <h3 className="text-base font-bold text-white">
-                  {authMode === 'login' ? '로그인' : '회원가입'}
+                  {selectedDept?.name} {authMode === 'login' ? '로그인' : '회원가입'}
                 </h3>
                 <button
                   onClick={() => setShowAuthModal(false)}

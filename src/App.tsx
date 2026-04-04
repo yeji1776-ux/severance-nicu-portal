@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -25,16 +25,21 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={
+          {/* 진료과별 라우트 */}
+          <Route path="/dept/:deptSlug/dashboard" element={
             <ProtectedRoute role="parent">
               <ParentDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/manual" element={
+          <Route path="/dept/:deptSlug/manual" element={
             <ProtectedRoute role="parent">
               <DischargeManual />
             </ProtectedRoute>
           } />
+
+          {/* 하위호환 리다이렉트 */}
+          <Route path="/dashboard" element={<Navigate to="/dept/nicu/dashboard" replace />} />
+          <Route path="/manual" element={<Navigate to="/dept/nicu/manual" replace />} />
           <Route path="/admin" element={
             <ProtectedRoute role="admin">
               <AdminEditor />
